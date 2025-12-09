@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Receipt {
+  id            String   @id @default(cuid())
+  userId        String   // Clerk User ID
+  qrCodeData    String
+  receiptDate   DateTime
+  amount        Float
+  taxId         String?  // ATU Number
+  pointsEarned  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([receiptDate])
+}
+
+model PointsTransaction {
+  id          String   @id @default(cuid())
+  userId      String   // Clerk User ID
+  amount      Int
+  type        String   // "earn", "spend", "win"
+  description String?
+  receiptId   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Voucher {
+  id              String   @id @default(cuid())
+  name            String
+  description     String
+  partnerName     String
+  partnerLogoUrl  String?
+  price           Float
+  pointsCost      Int      @default(0)
+  discountPercent Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model VoucherPurchase {
+  id              String   @id @default(cuid())
+  userId          String   // Clerk User ID
+  voucherId       String
+  stripeSessionId String?
+  status          String   // "pending", "completed", "failed"
+  amount          Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([stripeSessionId])
+}

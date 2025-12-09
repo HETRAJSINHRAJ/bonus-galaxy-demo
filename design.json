@@ -1,0 +1,466 @@
+{
+  "meta": {
+    "name": "Bonus Galaxy Design System",
+    "version": "1.0.0",
+    "description": "Complete design system for the Bonus Galaxy gamified customer engagement platform",
+    "framework": "Next.js with Tailwind CSS",
+    "based_on": "Vercel v0 design patterns"
+  },
+  
+  "colors": {
+    "brand": {
+      "primary": "#6366f1",
+      "primaryHover": "#4f46e5",
+      "primaryActive": "#4338ca",
+      "secondary": "#8b5cf6",
+      "accent": "#818cf8"
+    },
+    "background": {
+      "base": "#0a1628",
+      "secondary": "#0f1f35",
+      "tertiary": "#1a2942",
+      "card": "#1a2942",
+      "cardHover": "#1e3a5f"
+    },
+    "text": {
+      "primary": "#ffffff",
+      "secondary": "rgba(255, 255, 255, 0.6)",
+      "tertiary": "rgba(255, 255, 255, 0.4)",
+      "inverse": "#0a1628",
+      "muted": "#94a3b8"
+    },
+    "border": {
+      "default": "rgba(255, 255, 255, 0.1)",
+      "light": "rgba(255, 255, 255, 0.05)",
+      "dark": "rgba(255, 255, 255, 0.2)"
+    },
+    "success": "#10b981",
+    "warning": "#f59e0b",
+    "error": "#ef4444",
+    "info": "#3b82f6"
+  },
+  
+  "gradients": {
+    "hero": {
+      "type": "linear",
+      "description": "Colorful gradient from blue to purple to brown/gold",
+      "css": "linear-gradient(90deg, #6366f1 0%, #8b5cf6 25%, #a855f7 50%, #9d7b5e 75%, #b8935f 100%)"
+    },
+    "card": {
+      "type": "glassmorphism",
+      "background": "rgba(255, 255, 255, 0.05)",
+      "backdropBlur": "12px",
+      "border": "rgba(255, 255, 255, 0.1)",
+      "css": "background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1)"
+    },
+    "button": {
+      "primary": "linear-gradient(135deg, #6366f1 0%, #818cf8 100%)",
+      "hover": "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)"
+    }
+  },
+  
+  "typography": {
+    "fontFamilies": {
+      "sans": "var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+      "mono": "var(--font-geist-mono), 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace"
+    },
+    "fontSizes": {
+      "xs": "0.75rem",
+      "sm": "0.875rem",
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "2xl": "1.5rem",
+      "3xl": "1.875rem",
+      "4xl": "2.25rem",
+      "5xl": "3rem",
+      "6xl": "3.75rem",
+      "7xl": "4.5rem"
+    },
+    "fontWeights": {
+      "normal": "400",
+      "medium": "500",
+      "semibold": "600",
+      "bold": "700"
+    },
+    "lineHeights": {
+      "tight": "1.25",
+      "normal": "1.5",
+      "relaxed": "1.75",
+      "loose": "2"
+    },
+    "letterSpacing": {
+      "tight": "-0.025em",
+      "normal": "0",
+      "wide": "0.025em"
+    }
+  },
+  
+  "spacing": {
+    "scale": {
+      "0": "0",
+      "1": "0.25rem",
+      "2": "0.5rem",
+      "3": "0.75rem",
+      "4": "1rem",
+      "5": "1.25rem",
+      "6": "1.5rem",
+      "8": "2rem",
+      "10": "2.5rem",
+      "12": "3rem",
+      "16": "4rem",
+      "20": "5rem",
+      "24": "6rem",
+      "32": "8rem",
+      "40": "10rem",
+      "48": "12rem"
+    },
+    "sections": {
+      "padding": {
+        "mobile": "3rem 1.5rem",
+        "tablet": "5rem 2rem",
+        "desktop": "6rem 4rem"
+      },
+      "gap": {
+        "mobile": "3rem",
+        "desktop": "5rem"
+      }
+    }
+  },
+  
+  "layout": {
+    "container": {
+      "maxWidth": "1280px",
+      "padding": {
+        "mobile": "1rem",
+        "tablet": "2rem",
+        "desktop": "4rem"
+      }
+    },
+    "breakpoints": {
+      "sm": "640px",
+      "md": "768px",
+      "lg": "1024px",
+      "xl": "1280px",
+      "2xl": "1536px"
+    },
+    "grid": {
+      "columns": {
+        "mobile": 1,
+        "tablet": 2,
+        "desktop": 3
+      },
+      "gap": {
+        "mobile": "1.5rem",
+        "desktop": "2rem"
+      }
+    }
+  },
+  
+  "borderRadius": {
+    "none": "0",
+    "sm": "0.25rem",
+    "md": "0.5rem",
+    "lg": "0.75rem",
+    "xl": "1rem",
+    "2xl": "1.5rem",
+    "full": "9999px"
+  },
+  
+  "shadows": {
+    "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+    "base": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)",
+    "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)",
+    "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)",
+    "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+    "2xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    "inner": "inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)"
+  },
+  
+  "components": {
+    "navigation": {
+      "height": "4rem",
+      "background": "rgba(255, 255, 255, 0.8)",
+      "backdropBlur": "12px",
+      "borderBottom": "1px solid rgba(229, 231, 235, 0.8)",
+      "sticky": true,
+      "zIndex": 50,
+      "padding": "0 2rem",
+      "linkSpacing": "2rem",
+      "logoSize": "2rem"
+    },
+    
+    "button": {
+      "primary": {
+        "background": "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+        "color": "#ffffff",
+        "padding": "0.75rem 1.5rem",
+        "borderRadius": "0.5rem",
+        "fontSize": "1rem",
+        "fontWeight": "600",
+        "boxShadow": "0 4px 6px -1px rgba(99, 102, 241, 0.3)",
+        "hover": {
+          "background": "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+          "transform": "translateY(-2px)",
+          "boxShadow": "0 6px 8px -1px rgba(99, 102, 241, 0.4)"
+        }
+      },
+      "secondary": {
+        "background": "transparent",
+        "color": "#6366f1",
+        "border": "1px solid #e5e7eb",
+        "padding": "0.75rem 1.5rem",
+        "borderRadius": "0.5rem",
+        "fontSize": "1rem",
+        "fontWeight": "600",
+        "hover": {
+          "background": "#f9fafb",
+          "borderColor": "#d1d5db"
+        }
+      },
+      "ghost": {
+        "background": "transparent",
+        "color": "#6b7280",
+        "padding": "0.5rem 1rem",
+        "hover": {
+          "background": "#f3f4f6",
+          "color": "#111827"
+        }
+      }
+    },
+    
+    "card": {
+      "background": "#ffffff",
+      "border": "1px solid #e5e7eb",
+      "borderRadius": "1rem",
+      "padding": "2rem",
+      "boxShadow": "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
+      "hover": {
+        "boxShadow": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+        "transform": "translateY(-4px)",
+        "borderColor": "#d1d5db"
+      },
+      "transition": "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+    },
+    
+    "featureCard": {
+      "background": "#ffffff",
+      "border": "1px solid #e5e7eb",
+      "borderRadius": "1rem",
+      "padding": "2rem",
+      "icon": {
+        "size": "3rem",
+        "background": "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)",
+        "color": "#6366f1",
+        "borderRadius": "0.75rem",
+        "padding": "0.75rem"
+      }
+    },
+    
+    "heroSection": {
+      "minHeight": "90vh",
+      "padding": "6rem 2rem",
+      "textAlign": "center",
+      "gradient": "radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15) 0%, transparent 50%)"
+    },
+    
+    "statsCard": {
+      "background": "rgba(255, 255, 255, 0.5)",
+      "backdropBlur": "8px",
+      "border": "1px solid rgba(229, 231, 235, 0.5)",
+      "borderRadius": "1rem",
+      "padding": "1.5rem 2rem",
+      "display": "inline-flex",
+      "alignItems": "center",
+      "gap": "0.75rem"
+    },
+    
+    "badge": {
+      "background": "rgba(99, 102, 241, 0.1)",
+      "color": "#6366f1",
+      "padding": "0.25rem 0.75rem",
+      "borderRadius": "9999px",
+      "fontSize": "0.875rem",
+      "fontWeight": "600",
+      "textTransform": "uppercase",
+      "letterSpacing": "0.025em"
+    },
+    
+    "benefitCard": {
+      "background": "#ffffff",
+      "border": "1px solid #e5e7eb",
+      "borderRadius": "0.75rem",
+      "padding": "1.5rem",
+      "display": "flex",
+      "gap": "1rem",
+      "checkmark": {
+        "size": "1.5rem",
+        "background": "#10b981",
+        "color": "#ffffff",
+        "borderRadius": "9999px",
+        "flexShrink": 0
+      }
+    },
+    
+    "stepCard": {
+      "textAlign": "center",
+      "number": {
+        "size": "4rem",
+        "fontWeight": "700",
+        "background": "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+        "backgroundClip": "text",
+        "textFillColor": "transparent",
+        "marginBottom": "1rem"
+      }
+    },
+    
+    "footer": {
+      "background": "#111827",
+      "color": "#d1d5db",
+      "padding": "4rem 2rem 2rem",
+      "linkColor": "#9ca3af",
+      "linkHoverColor": "#ffffff"
+    }
+  },
+  
+  "animations": {
+    "transitions": {
+      "fast": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+      "base": "200ms cubic-bezier(0.4, 0, 0.2, 1)",
+      "slow": "300ms cubic-bezier(0.4, 0, 0.2, 1)"
+    },
+    "hover": {
+      "lift": "translateY(-4px)",
+      "scale": "scale(1.02)"
+    },
+    "fadeIn": {
+      "from": "opacity: 0; transform: translateY(20px)",
+      "to": "opacity: 1; transform: translateY(0)"
+    }
+  },
+  
+  "content": {
+    "sections": [
+      {
+        "name": "Navigation",
+        "items": ["Logo", "Features", "So funktioniert's", "Vorteile", "Kontakt"],
+        "cta": ["Anmelden", "Jetzt starten"]
+      },
+      {
+        "name": "Hero",
+        "headline": "Willkommen in der Bonus Galaxy",
+        "subheadline": "Das gamifizierte Kunden-Engagement System",
+        "description": "Das gamifizierte Kunden-Engagement System, das aus alltäglichen Einkäufen wertvolle Belohnungen macht. Sammeln Sie Galaxy Points und entdecken Sie eine neue Dimension des Shoppings.",
+        "stats": ["2.3M+ aktive Nutzer", "85% Engagement Rate"],
+        "cta": ["App herunterladen", "Demo ansehen"]
+      },
+      {
+        "name": "Features",
+        "badge": "Kernfunktionen",
+        "headline": "Warum Bonus Galaxy?",
+        "features": [
+          {
+            "title": "Einfaches Scannen",
+            "description": "Scannen Sie beliebige Einkaufsrechnungen und sammeln Sie automatisch Galaxy Points"
+          },
+          {
+            "title": "Gamification",
+            "description": "Spielen Sie Geschicklichkeitsspiele und erhöhen Sie Ihren Punktestand"
+          },
+          {
+            "title": "Exklusive Belohnungen",
+            "description": "Lösen Sie Ihre Punkte für attraktive Rabatte und Angebote ein"
+          },
+          {
+            "title": "Community",
+            "description": "Werden Sie Teil einer aktiven Community von Millionen Nutzern"
+          },
+          {
+            "title": "Personalisierung",
+            "description": "Erhalten Sie maßgeschneiderte Angebote basierend auf Ihrem Kaufverhalten"
+          },
+          {
+            "title": "Sofortige Belohnungen",
+            "description": "Keine Wartezeiten - Ihre Belohnungen sind sofort verfügbar"
+          }
+        ]
+      },
+      {
+        "name": "How It Works",
+        "headline": "So einfach funktioniert's",
+        "subtitle": "In nur drei Schritten zu Ihren ersten Galaxy Points",
+        "steps": [
+          {
+            "number": "1",
+            "title": "App herunterladen",
+            "description": "Laden Sie die Bonus Galaxy App herunter und erstellen Sie Ihr kostenloses Konto."
+          },
+          {
+            "number": "2",
+            "title": "Rechnungen scannen",
+            "description": "Scannen Sie beliebige Einkaufsrechnungen mit der Kamera Ihres Smartphones."
+          },
+          {
+            "number": "3",
+            "title": "Belohnungen einlösen",
+            "description": "Tauschen Sie Ihre gesammelten Punkte gegen attraktive Belohnungen ein."
+          }
+        ]
+      },
+      {
+        "name": "Benefits",
+        "headline": "Ihre Vorteile mit Bonus Galaxy",
+        "benefits": [
+          "Belohnung für alltägliche Ausgaben",
+          "Personalisierte Angebote",
+          "Spielerische Erfahrung",
+          "Keine versteckten Kosten"
+        ]
+      },
+      {
+        "name": "CTA Section",
+        "headline": "Bereit für die Bonus Galaxy?",
+        "description": "Schließen Sie sich Millionen von Nutzern an und verwandeln Sie Ihre Einkäufe in wertvolle Belohnungen.",
+        "buttons": ["App Store", "Google Play"]
+      },
+      {
+        "name": "Footer",
+        "sections": [
+          {
+            "title": "Produkt",
+            "links": ["Features", "So funktioniert's", "Vorteile"]
+          },
+          {
+            "title": "Unternehmen",
+            "links": ["Über uns", "Karriere", "Presse"]
+          },
+          {
+            "title": "Kontakt",
+            "info": [
+              "Klaus J. Kohlmayr, MSc(WU)",
+              "AC Vision – Your Star Life Style",
+              "Mauerbach 2/5, 5550 Radstadt",
+              "klaus@bonus-galaxy.com",
+              "+43 699 11 788 707"
+            ]
+          }
+        ],
+        "legal": ["Datenschutz", "Impressum", "AGB"],
+        "copyright": "© 2025 Klaus J. Kohlmayr, Karim Abed Abbas. Alle Rechte vorbehalten."
+      }
+    ]
+  },
+  
+  "designPrinciples": {
+    "1": "Modern and clean - Use generous white space and clear visual hierarchy",
+    "2": "Purple gradient brand identity - Primary color scheme based on indigo-purple gradient",
+    "3": "Card-based layout - Group content in elevated cards with subtle shadows",
+    "4": "Smooth animations - Add subtle hover effects and transitions for interactivity",
+    "5": "Mobile-first responsive - Design scales seamlessly from mobile to desktop",
+    "6": "Glassmorphism accents - Use frosted glass effects for overlays and stats",
+    "7": "Clear CTAs - Prominent gradient buttons guide user actions",
+    "8": "Icon-driven features - Use icons to make features quickly scannable"
+  }
+}
+
+
