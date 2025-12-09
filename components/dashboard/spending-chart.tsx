@@ -36,62 +36,62 @@ export function SpendingChart({ userId }: SpendingChartProps) {
   const trend = ((chartData[chartData.length - 1].amount - chartData[0].amount) / chartData[0].amount * 100).toFixed(0);
 
   return (
-    <div className="rounded-xl bg-white border border-gray-200 overflow-hidden">
-      <div className="p-6 border-b border-gray-100">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
-              <BarChart3 className="h-5 w-5 text-indigo-600" />
+    <div className="rounded-xl sm:rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 overflow-hidden">
+      <div className="p-4 sm:p-6 border-b border-white/10">
+        <div className="flex items-start justify-between mb-3 sm:mb-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+              <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-400" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">Ausgaben Übersicht</h3>
-              <p className="text-sm text-gray-500">Letzte 6 Monate</p>
+              <h3 className="font-semibold text-white text-sm sm:text-base">Ausgaben Übersicht</h3>
+              <p className="text-xs sm:text-sm text-white/60">Letzte 6 Monate</p>
             </div>
           </div>
-          <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-green-50 text-green-700 text-sm font-medium">
-            <TrendingUp className="h-4 w-4" />
+          <div className="flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 text-xs sm:text-sm font-medium flex-shrink-0">
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
             +{trend}%
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <div>
-            <p className="text-sm text-gray-600 mb-1">Gesamt</p>
-            <p className="text-2xl font-bold text-gray-900">€{totalAmount}</p>
+            <p className="text-xs sm:text-sm text-white/60 mb-1">Gesamt</p>
+            <p className="text-xl sm:text-2xl font-bold text-white">€{totalAmount}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 mb-1">Durchschnitt</p>
-            <p className="text-2xl font-bold text-gray-900">€{avgAmount}</p>
+            <p className="text-xs sm:text-sm text-white/60 mb-1">Durchschnitt</p>
+            <p className="text-xl sm:text-2xl font-bold text-white">€{avgAmount}</p>
           </div>
         </div>
       </div>
 
-      <div className="p-6">
-        <ChartContainer config={chartConfig} className="h-[250px] w-full">
+      <div className="p-4 sm:p-6">
+        <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
               <CartesianGrid 
                 strokeDasharray="3 3" 
-                stroke="#f3f4f6" 
+                stroke="rgba(255,255,255,0.1)" 
                 vertical={false}
               />
               <XAxis
                 dataKey="month"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: '#9ca3af', fontSize: 12 }}
+                tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
                 dy={10}
               />
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: '#9ca3af', fontSize: 12 }}
+                tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
                 tickFormatter={(value) => `€${value}`}
                 dx={-10}
               />
               <ChartTooltip 
                 content={<ChartTooltipContent />} 
-                cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }}
+                cursor={{ fill: 'rgba(99, 102, 241, 0.1)' }}
               />
               <Bar 
                 dataKey="amount" 

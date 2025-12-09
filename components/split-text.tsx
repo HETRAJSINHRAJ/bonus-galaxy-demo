@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useRef, useEffect, useState, useMemo, type ElementType } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -142,10 +142,10 @@ const SplitText = ({
 
   const classes = `split-parent ${className}`;
 
-  const Tag = tag as keyof JSX.IntrinsicElements;
+  const Tag = tag as ElementType;
 
   return (
-    <Tag ref={containerRef as React.RefObject<HTMLParagraphElement>} style={style} className={classes}>
+    <Tag ref={containerRef} style={style} className={classes}>
       {splitElements}
     </Tag>
   );

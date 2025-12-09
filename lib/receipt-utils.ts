@@ -12,20 +12,42 @@ export interface ParsedReceiptData {
 export function parseReceiptQRCode(qrData: string): ParsedReceiptData {
   const parts = qrData.split('_');
   
-  if (parts.length < 8) {
+  if (parts.length < 6) {
     throw new Error('Ungültiges QR-Code Format');
   }
 
-  // Datum extrahieren (Index 3)
-  const dateStr = parts[3];
-  const receiptDate = new Date(dateStr);
+  // Datum extrahieren (Index 4 für R1-AT3 Format)
+  const dateStr = parts[4];
+  let receiptDate: Date;
+  
+  // Try parsing as ISO date first
+  receiptDate = new Date(dateStr);
+  
+  // If invalid, try parsing as YYYYMMDD format
+  if (isNaN(receiptDate.getTime()) && /^\d{8}$/.test(dateStr)) {
+    const year = dateStr.substring(0, 4);
+    const month = dateStr.substring(4, 6);
+    const day = dateStr.substring(6, 8);
+    receiptDate = new Date(`${year}-${month}-${day}`);
+  }
+  
+  // If still invalid, try parsing as YYYYMMDDHHmmss format
+  if (isNaN(receiptDate.getTime()) && /^\d{14}$/.test(dateStr)) {
+    const year = dateStr.substring(0, 4);
+    const month = dateStr.substring(4, 6);
+    const day = dateStr.substring(6, 8);
+    const hour = dateStr.substring(8, 10);
+    const minute = dateStr.substring(10, 12);
+    const second = dateStr.substring(12, 14);
+    receiptDate = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}`);
+  }
   
   if (isNaN(receiptDate.getTime())) {
     throw new Error('Ungültiges Datum im QR-Code');
   }
 
-  // Betrag extrahieren (Index 7)
-  let amountStr = parts[7];
+  // Betrag extrahieren (Index 5 für R1-AT3 Format)
+  let amountStr = parts[5];
   
   // Entfernen von zusätzlichen Zeichen nach dem Betrag
   amountStr = amountStr.split('+')[0];

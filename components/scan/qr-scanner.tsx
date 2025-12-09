@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { ScanLine, CheckCircle2, XCircle, Loader2, Camera } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { parseReceiptQRCode } from '@/lib/receipt-utils';
 
 interface ScanResult {
   success: boolean;
@@ -22,31 +22,13 @@ export function QRScanner() {
   const router = useRouter();
 
   const parseQRCode = (qrData: string) => {
-    const parts = qrData.split('_');
+    const parsedData = parseReceiptQRCode(qrData);
     
-    if (parts.length < 8) {
-      throw new Error('Ungültiges QR-Code Format');
-    }
-
-    const dateStr = parts[3];
-    const receiptDate = new Date(dateStr);
-    const amountStr = parts[7].replace(',', '.');
-    const amount = parseFloat(amountStr);
-
-    let taxId = '';
-    const atuPart = parts.find(p => p.includes('U:ATU'));
-    if (atuPart) {
-      const atuMatch = atuPart.match(/U:(ATU\d+)/);
-      if (atuMatch) {
-        taxId = atuMatch[1];
-      }
-    }
-
     return {
-      qrCodeData: qrData,
-      receiptDate: receiptDate.toISOString(),
-      amount,
-      taxId,
+      qrCodeData: parsedData.qrCodeData,
+      receiptDate: parsedData.receiptDate.toISOString(),
+      amount: parsedData.amount,
+      taxId: parsedData.taxId || '',
     };
   };
 
@@ -92,32 +74,45 @@ export function QRScanner() {
     }
   };
 
-  const startScanner = async () => {
-    try {
-      const scanner = new Html5Qrcode('qr-reader');
-      scannerRef.current = scanner;
-
-      await scanner.start(
-        { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
-        (decodedText) => {
-          processQRCode(decodedText);
-        },
-        undefined
-      );
-
-      setScanning(true);
-    } catch (error) {
-      console.error('Scanner error:', error);
-      setResult({
-        success: false,
-        message: 'Kamera konnte nicht gestartet werden',
-      });
-    }
+  const startScanner = () => {
+    // First set scanning to true to render the qr-reader div
+    setScanning(true);
   };
+
+  // Initialize scanner after the qr-reader div is rendered
+  useEffect(() => {
+    if (!scanning || scannerRef.current) return;
+
+    const initScanner = async () => {
+      try {
+        const scanner = new Html5Qrcode('qr-reader');
+        scannerRef.current = scanner;
+
+        await scanner.start(
+          { facingMode: 'environment' },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+          },
+          (decodedText) => {
+            processQRCode(decodedText);
+          },
+          undefined
+        );
+      } catch (error) {
+        console.error('Scanner error:', error);
+        setScanning(false);
+        setResult({
+          success: false,
+          message: 'Kamera konnte nicht gestartet werden',
+        });
+      }
+    };
+
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(initScanner, 100);
+    return () => clearTimeout(timer);
+  }, [scanning]);
 
   const stopScanner = async () => {
     if (scannerRef.current) {
@@ -139,15 +134,15 @@ export function QRScanner() {
   }, []);
 
   return (
-    <Card className="p-8 bg-white border border-border">
+    <div className="p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
       {!scanning && !result && (
         <div className="text-center space-y-6">
-          <div className="w-24 h-24 bg-gradient-to-br from-[#6366f1]/10 to-[#8b5cf6]/10 rounded-full flex items-center justify-center mx-auto">
-            <ScanLine className="h-12 w-12 text-[#6366f1]" />
+          <div className="w-24 h-24 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-full flex items-center justify-center mx-auto animate-pulse-glow">
+            <ScanLine className="h-12 w-12 text-indigo-400" />
           </div>
           <div>
-            <h3 className="text-xl font-semibold mb-2">Bereit zum Scannen</h3>
-            <p className="text-muted-foreground text-sm">
+            <h3 className="text-xl font-semibold text-white mb-2">Bereit zum Scannen</h3>
+            <p className="text-white/60 text-sm">
               Klicke auf den Button um die Kamera zu aktivieren
             </p>
           </div>
@@ -160,14 +155,14 @@ export function QRScanner() {
 
       {scanning && !result && (
         <div className="space-y-6">
-          <div id="qr-reader" className="w-full rounded-xl overflow-hidden border-2 border-[#6366f1]/20" />
+          <div id="qr-reader" className="w-full rounded-xl overflow-hidden border-2 border-indigo-500/30" />
           <div className="flex flex-col items-center gap-4">
-            <Button onClick={stopScanner} variant="outline" className="w-full max-w-xs">
+            <Button onClick={stopScanner} variant="outline" className="w-full max-w-xs bg-white/5 border-white/20 text-white hover:bg-white/10">
               Abbrechen
             </Button>
             {loading && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin text-[#6366f1]" />
+              <div className="flex items-center gap-2 text-sm text-white/60">
+                <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />
                 Verarbeite Rechnung...
               </div>
             )}
@@ -179,35 +174,35 @@ export function QRScanner() {
         <div className="text-center space-y-6">
           {result.success ? (
             <>
-              <div className="w-24 h-24 bg-[#10b981]/10 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle2 className="h-12 w-12 text-[#10b981]" />
+              <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle2 className="h-12 w-12 text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">{result.message}</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">{result.message}</h3>
                 {result.amount && (
-                  <p className="text-muted-foreground">
-                    Betrag: <span className="font-semibold">€{result.amount.toFixed(2)}</span>
+                  <p className="text-white/60">
+                    Betrag: <span className="font-semibold text-white">€{result.amount.toFixed(2)}</span>
                   </p>
                 )}
                 {result.points && (
-                  <p className="text-2xl font-bold text-[#6366f1] mt-3">
+                  <p className="text-2xl font-bold text-indigo-400 mt-3">
                     +{result.points} Punkte
                   </p>
                 )}
               </div>
-              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center gap-2 text-sm text-white/60">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Du wirst zum Dashboard weitergeleitet...
               </div>
             </>
           ) : (
             <>
-              <div className="w-24 h-24 bg-[#ef4444]/10 rounded-full flex items-center justify-center mx-auto">
-                <XCircle className="h-12 w-12 text-[#ef4444]" />
+              <div className="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
+                <XCircle className="h-12 w-12 text-red-400" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">Fehler</h3>
-                <p className="text-muted-foreground">{result.message}</p>
+                <h3 className="text-xl font-semibold text-white mb-2">Fehler</h3>
+                <p className="text-white/60">{result.message}</p>
               </div>
               <Button onClick={() => setResult(null)} className="btn-gradient px-8">
                 Erneut versuchen
@@ -216,6 +211,6 @@ export function QRScanner() {
           )}
         </div>
       )}
-    </Card>
+    </div>
   );
 }

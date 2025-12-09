@@ -2,8 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { Navigation } from '@/components/navigation';
 import { VoucherCard } from '@/components/shop/voucher-card';
-import { Card } from '@/components/ui/card';
-import { Sparkles, ShoppingBag, CreditCard, Gift, Zap } from 'lucide-react';
+import { Sparkles, ShoppingBag, CreditCard, Gift, Zap, Shield, Check } from 'lucide-react';
 
 const voucherBundles = [
   {
@@ -79,66 +78,72 @@ export default async function ShopPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f9fafb] pb-24 lg:pb-8">
+    <div className="min-h-screen dark-pattern pb-24 lg:pb-8">
       <Navigation />
       
       {/* Hero Header */}
-      <div className="bg-gradient-hero border-b border-border/40">
-        <div className="container mx-auto px-4 lg:px-8 py-12">
-          <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-[#6366f1]/10 text-[#6366f1] px-4 py-2 rounded-full text-sm font-semibold">
+      <div className="relative overflow-hidden border-b border-white/10">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/50 via-indigo-800/50 to-blue-900/50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5" />
+        
+        {/* Floating decorative elements */}
+        <div className="absolute top-10 right-10 w-20 h-20 rounded-full bg-orange-400/20 blur-2xl animate-float hidden sm:block" />
+        <div className="absolute bottom-10 left-20 w-16 h-16 rounded-full bg-purple-400/20 blur-2xl animate-float-slow hidden sm:block" />
+        
+        <div className="container mx-auto px-4 lg:px-6 py-8 relative z-10">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-2 bg-indigo-500/20 text-indigo-300 px-3 py-1.5 rounded-full text-sm font-semibold border border-indigo-500/30 animate-pulse-glow">
               <Sparkles className="h-4 w-4" />
               Exklusive Gutschein-Bundles
             </div>
-            <h1 className="text-4xl font-bold">Gutscheine kaufen</h1>
-            <p className="text-lg text-muted-foreground">
+            <h1 className="text-3xl font-bold text-white">Gutscheine kaufen</h1>
+            <p className="text-white/70">
               Kaufe unsere exklusiven Gutschein-Bundles und spare bei unseren Partnern.
-              Alle Gutscheine von gutschein.at.
             </p>
           </div>
         </div>
       </div>
 
-      <main className="container mx-auto px-4 lg:px-8 py-8">
-        <div className="space-y-12">
+      <main className="container mx-auto px-4 lg:px-6 py-6">
+        <div className="space-y-8">
           {/* Voucher Cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {voucherBundles.map((bundle) => (
               <VoucherCard key={bundle.id} bundle={bundle} />
             ))}
           </div>
 
           {/* How it works */}
-          <Card className="p-8 bg-white border border-border max-w-4xl mx-auto">
-            <h3 className="font-semibold text-xl mb-8 text-center">Wie funktioniert es?</h3>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
+            <h3 className="font-semibold text-lg text-white mb-6 text-center">Wie funktioniert es?</h3>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {steps.map((step, index) => {
                 const Icon = step.icon;
                 return (
-                  <div key={index} className="text-center">
-                    <div className="w-14 h-14 bg-gradient-to-br from-[#6366f1]/10 to-[#8b5cf6]/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                      <Icon className="h-7 w-7 text-[#6366f1]" />
+                  <div key={index} className="text-center group">
+                    <div className="w-14 h-14 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-transform border border-white/10">
+                      <Icon className="h-7 w-7 text-indigo-400" />
                     </div>
-                    <h4 className="font-semibold mb-1">{step.title}</h4>
-                    <p className="text-sm text-muted-foreground">{step.description}</p>
+                    <h4 className="font-semibold text-white mb-1">{step.title}</h4>
+                    <p className="text-sm text-white/60">{step.description}</p>
                   </div>
                 );
               })}
             </div>
-          </Card>
+          </div>
 
           {/* Trust badges */}
-          <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-[#10b981] rounded-full" />
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-white/70">
+            <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
               Sichere Zahlung mit Stripe
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-[#10b981] rounded-full" />
+            <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
               Sofortige Zustellung
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-[#10b981] rounded-full" />
+            <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
               30 Tage Geld-zurück-Garantie
             </div>
           </div>

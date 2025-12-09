@@ -1,7 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { Navigation } from '@/components/navigation';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Coins, TrendingUp, TrendingDown, ScanLine, Gamepad2, ShoppingBag, Sparkles } from 'lucide-react';
@@ -30,15 +29,11 @@ export default async function PointsPage() {
   ]);
 
   const totalPoints = pointsBalance._sum.amount || 0;
-
   const earnedPoints = transactions
     .filter(t => t.amount > 0)
     .reduce((sum, t) => sum + t.amount, 0);
-
   const spentPoints = Math.abs(
-    transactions
-      .filter(t => t.amount < 0)
-      .reduce((sum, t) => sum + t.amount, 0)
+    transactions.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0)
   );
 
   const stats = [
@@ -46,25 +41,22 @@ export default async function PointsPage() {
       label: 'Aktueller Stand',
       value: totalPoints.toLocaleString('de-DE'),
       icon: Coins,
-      color: 'text-[#6366f1]',
-      bgColor: 'bg-[#6366f1]/10',
-      borderColor: 'border-[#6366f1]/20',
+      gradient: 'from-indigo-500 to-purple-500',
+      bgColor: 'bg-indigo-500/20',
     },
     {
       label: 'Verdient',
       value: earnedPoints.toLocaleString('de-DE'),
       icon: TrendingUp,
-      color: 'text-[#10b981]',
-      bgColor: 'bg-[#10b981]/10',
-      borderColor: 'border-[#10b981]/20',
+      gradient: 'from-emerald-500 to-green-500',
+      bgColor: 'bg-emerald-500/20',
     },
     {
       label: 'Ausgegeben',
       value: spentPoints.toLocaleString('de-DE'),
       icon: TrendingDown,
-      color: 'text-[#ef4444]',
-      bgColor: 'bg-[#ef4444]/10',
-      borderColor: 'border-[#ef4444]/20',
+      gradient: 'from-red-500 to-orange-500',
+      bgColor: 'bg-red-500/20',
     },
   ];
 
@@ -75,66 +67,63 @@ export default async function PointsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f9fafb] pb-24 lg:pb-8">
+    <div className="min-h-screen dark-pattern pb-24 lg:pb-8">
       <Navigation />
       
       {/* Hero Header */}
-      <div className="bg-gradient-hero border-b border-border/40">
-        <div className="container mx-auto px-4 lg:px-8 py-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+      <div className="relative overflow-hidden border-b border-white/10">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/50 via-indigo-800/50 to-blue-900/50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5" />
+        
+        <div className="container mx-auto px-4 lg:px-8 py-8 relative z-10">
+          <div className="text-center">
+            <div className="w-16 h-16 btn-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/25 animate-float">
               <Coins className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold mb-2">Meine Punkte</h1>
-            <p className="text-muted-foreground">
-              Überblick über deine Punkte und Transaktionen
-            </p>
+            <h1 className="text-3xl font-bold text-white mb-2">Meine Punkte</h1>
+            <p className="text-white/70">Überblick über deine Punkte und Transaktionen</p>
           </div>
         </div>
       </div>
 
       <main className="container mx-auto px-4 lg:px-8 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="space-y-8">
           {/* Points Summary */}
           <div className="grid sm:grid-cols-3 gap-4">
             {stats.map((stat) => {
               const Icon = stat.icon;
               return (
-                <Card 
+                <div 
                   key={stat.label} 
-                  className={`p-6 bg-white border ${stat.borderColor} card-hover`}
+                  className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all group"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm text-muted-foreground font-medium">{stat.label}</span>
-                    <div className={`${stat.bgColor} p-2 rounded-lg`}>
-                      <Icon className={`h-5 w-5 ${stat.color}`} />
+                    <span className="text-sm text-white/60 font-medium">{stat.label}</span>
+                    <div className={`${stat.bgColor} p-2 rounded-lg group-hover:scale-110 transition-transform`}>
+                      <Icon className="h-5 w-5 text-white" />
                     </div>
                   </div>
-                  <p className="text-3xl font-bold">{stat.value}</p>
-                </Card>
+                  <p className="text-3xl font-bold text-white">{stat.value}</p>
+                </div>
               );
             })}
           </div>
 
           {/* Transaction History */}
-          <Card className="p-6 bg-white border border-border">
-            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-[#6366f1]" />
+          <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
+            <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-indigo-400" />
               Transaktionsverlauf
             </h2>
             
             {transactions.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-[#6366f1]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Coins className="h-8 w-8 text-[#6366f1]" />
+                <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Coins className="h-8 w-8 text-indigo-400" />
                 </div>
-                <p className="text-muted-foreground mb-4">
-                  Noch keine Transaktionen vorhanden.
-                </p>
+                <p className="text-white/60 mb-4">Noch keine Transaktionen vorhanden.</p>
                 <Link href="/scan">
-                  <Button className="btn-gradient">
-                    Erste Rechnung scannen
-                  </Button>
+                  <Button className="btn-gradient">Erste Rechnung scannen</Button>
                 </Link>
               </div>
             ) : (
@@ -142,31 +131,29 @@ export default async function PointsPage() {
                 {transactions.map((transaction) => (
                   <div
                     key={transaction.id}
-                    className="flex items-center justify-between p-4 bg-[#f9fafb] rounded-xl hover:bg-[#f3f4f6] transition-colors"
+                    className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors border border-white/5"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <Badge 
                           className={transaction.amount > 0 
-                            ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/20' 
-                            : 'bg-[#ef4444]/10 text-[#ef4444] border-[#ef4444]/20'
+                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
+                            : 'bg-red-500/20 text-red-400 border-red-500/30'
                           }
                         >
                           {transaction.type === 'earn' ? 'Verdient' : 
                            transaction.type === 'spend' ? 'Ausgegeben' : 'Gewinn'}
                         </Badge>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-white/50">
                           {format(new Date(transaction.createdAt), 'dd. MMM yyyy, HH:mm', { locale: de })}
                         </span>
                       </div>
                       {transaction.description && (
-                        <p className="text-sm text-muted-foreground">
-                          {transaction.description}
-                        </p>
+                        <p className="text-sm text-white/60">{transaction.description}</p>
                       )}
                     </div>
                     <div className={`text-lg font-bold ${
-                      transaction.amount > 0 ? 'text-[#10b981]' : 'text-[#ef4444]'
+                      transaction.amount > 0 ? 'text-emerald-400' : 'text-red-400'
                     }`}>
                       {transaction.amount > 0 ? '+' : ''}{transaction.amount.toLocaleString('de-DE')}
                     </div>
@@ -174,12 +161,12 @@ export default async function PointsPage() {
                 ))}
               </div>
             )}
-          </Card>
+          </div>
 
           {/* How to earn more */}
-          <Card className="p-6 bg-gradient-to-br from-[#6366f1]/5 to-[#8b5cf6]/5 border-[#6366f1]/20">
-            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-[#6366f1]" />
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
+            <h3 className="font-semibold text-lg text-white mb-4 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-indigo-400" />
               Wie sammle ich mehr Punkte?
             </h3>
             <div className="space-y-3">
@@ -187,15 +174,15 @@ export default async function PointsPage() {
                 const Icon = method.icon;
                 return (
                   <div key={index} className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                      <Icon className="h-5 w-5 text-[#6366f1]" />
+                    <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center border border-white/10">
+                      <Icon className="h-5 w-5 text-indigo-400" />
                     </div>
-                    <span className="text-sm">{method.text}</span>
+                    <span className="text-sm text-white/80">{method.text}</span>
                   </div>
                 );
               })}
             </div>
-          </Card>
+          </div>
         </div>
       </main>
     </div>

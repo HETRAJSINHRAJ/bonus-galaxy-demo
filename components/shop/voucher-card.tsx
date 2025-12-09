@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Loader2, Sparkles } from 'lucide-react';
@@ -60,60 +59,59 @@ export function VoucherCard({ bundle }: VoucherCardProps) {
   const savingsPercent = Math.round((savings / bundle.value) * 100);
 
   return (
-    <Card className={`relative p-6 flex flex-col bg-white border card-hover ${
+    <div className={`relative p-4 flex flex-col rounded-xl bg-white/5 backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${
       bundle.popular 
-        ? 'border-[#6366f1] border-2 shadow-lg shadow-[#6366f1]/10' 
-        : 'border-border'
+        ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/20' 
+        : 'border-white/10 hover:border-white/20'
     }`}>
       {bundle.popular && (
-        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-primary text-white border-0 px-4 py-1">
+        <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 btn-gradient text-white border-0 px-3 py-0.5 text-xs">
           <Sparkles className="h-3 w-3 mr-1" />
           Beliebteste Wahl
         </Badge>
       )}
       
-      <div className="flex-1 space-y-6">
+      <div className="flex-1 space-y-4">
         {/* Header */}
         <div>
-          <h3 className="text-2xl font-bold mb-2">{bundle.name}</h3>
-          <p className="text-sm text-muted-foreground">{bundle.description}</p>
+          <h3 className="text-xl font-bold text-white mb-1">{bundle.name}</h3>
+          <p className="text-xs text-white/60">{bundle.description}</p>
         </div>
 
         {/* Pricing */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-bold">€{bundle.price}</span>
-            <span className="text-lg text-muted-foreground line-through">€{bundle.value}</span>
+            <span className="text-3xl font-bold text-white">€{bundle.price}</span>
+            <span className="text-base text-white/40 line-through">€{bundle.value}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Badge className="bg-[#10b981]/10 text-[#10b981] border-[#10b981]/20 hover:bg-[#10b981]/20">
+            <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30 text-xs">
               Spare €{savings}
             </Badge>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs text-white/50">
               ({savingsPercent}% Rabatt)
             </span>
           </div>
         </div>
 
         {/* Features */}
-        <ul className="space-y-3">
+        <ul className="space-y-2">
           {bundle.features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-3 text-sm">
-              <div className="w-5 h-5 bg-[#6366f1]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Check className="h-3 w-3 text-[#6366f1]" />
+            <li key={index} className="flex items-start gap-2 text-xs">
+              <div className="w-4 h-4 bg-indigo-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Check className="h-2.5 w-2.5 text-indigo-400" />
               </div>
-              <span>{feature}</span>
+              <span className="text-white/80">{feature}</span>
             </li>
           ))}
         </ul>
       </div>
 
       <Button
-        className={`w-full mt-6 ${bundle.popular ? 'btn-gradient' : ''}`}
-        size="lg"
+        className={`w-full mt-4 ${bundle.popular ? 'btn-gradient' : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'}`}
+        size="default"
         onClick={handlePurchase}
         disabled={loading}
-        variant={bundle.popular ? 'default' : 'outline'}
       >
         {loading ? (
           <>
@@ -124,6 +122,6 @@ export function VoucherCard({ bundle }: VoucherCardProps) {
           'Jetzt kaufen'
         )}
       </Button>
-    </Card>
+    </div>
   );
 }
