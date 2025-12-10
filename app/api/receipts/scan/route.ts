@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     if (!qrCodeData || !receiptDate || amount === undefined) {
       return NextResponse.json(
-        { error: 'Fehlende Pflichtfelder' },
+        { error: 'Ungültiger QR-Code. Bitte scannen Sie einen gültigen Kassenbeleg.' },
         { status: 400 }
       );
     }
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 
     if (existingReceipt) {
       return NextResponse.json(
-        { error: 'Diese Rechnung wurde bereits gescannt' },
+        { error: 'Dieser Beleg wurde bereits erfasst. Jeder Beleg kann nur einmal eingescannt werden.' },
         { status: 400 }
       );
     }
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error processing receipt:', error);
     return NextResponse.json(
-      { error: 'Interner Serverfehler' },
+      { error: 'Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.' },
       { status: 500 }
     );
   }

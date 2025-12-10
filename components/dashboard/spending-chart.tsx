@@ -1,39 +1,62 @@
-'use client';
-
-import { TrendingUp, BarChart3 } from 'lucide-react';
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import prisma from '@/lib/prisma';
+import { SpendingChartClient } from './spending-chart-client';
 
 interface SpendingChartProps {
   userId: string;
 }
 
-const chartConfig = {
-  amount: {
-    label: 'Ausgaben',
-    color: '#6366f1',
-  },
-} satisfies ChartConfig;
+const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
 
-export function SpendingChart({ userId }: SpendingChartProps) {
-  // Demo data - in production this would come from the server
-  const chartData = [
-    { month: 'Jan', amount: 186 },
-    { month: 'Feb', amount: 305 },
-    { month: 'Mär', amount: 237 },
-    { month: 'Apr', amount: 273 },
-    { month: 'Mai', amount: 209 },
-    { month: 'Jun', amount: 314 },
-  ];
+export async function SpendingChart({ userId }: SpendingChartProps) {
+  // Get receipts from the last 6 months
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-  const totalAmount = chartData.reduce((sum, item) => sum + item.amount, 0);
-  const avgAmount = (totalAmount / chartData.length).toFixed(0);
-  const trend = ((chartData[chartData.length - 1].amount - chartData[0].amount) / chartData[0].amount * 100).toFixed(0);
+  const receipts = await prisma.receipt.findMany({
+    where: {
+      userId,
+      receiptDate: {
+        gte: sixMonthsAgo,
+      },
+    },
+    select: {
+      amount: true,
+      receiptDate: true,
+    },
+    orderBy: {
+      receiptDate: 'asc',
+    },
+  });
+
+  // Group receipts by month
+  const monthlyData = new Map<string, number>();
+  
+  // Initialize last 6 months with 0
+  for (let i = 5; i >= 0; i--) {
+    const date = new Date();
+    date.setMonth(date.getMonth() - i);
+    const key = `${date.getFullYear()}-${date.getMonth()}`;
+    monthlyData.set(key, 0);
+  }
+
+  // Sum up amounts by month
+  receipts.forEach(receipt => {
+    const date = new Date(receipt.receiptDate);
+    const key = `${date.getFullYear()}-${date.getMonth()}`;
+    monthlyData.set(key, (monthlyData.get(key) || 0) + receipt.amount);
+  });
+
+  // Convert to chart data format
+  const chartData = Array.from(monthlyData.entries()).map(([key, amount]) => {
+    const [year, monthIndex] = key.split('-');
+    return {
+      month: monthNames[parseInt(monthIndex)],
+      amount: Math.round(amount),
+    };
+  });
+
+  // Pass data to client component
+  return <SpendingChartClient chartData={chartData} />;
 
   return (
     <div className="rounded-xl sm:rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 overflow-hidden">

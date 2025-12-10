@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Loader2, Sparkles } from 'lucide-react';
+import { Check, Loader2, Sparkles, Coins, CreditCard } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 
 interface Bundle {
@@ -14,18 +14,22 @@ interface Bundle {
   value: number;
   features: string[];
   popular?: boolean;
+  pointsCost?: number;
+  voucherCount?: number;
 }
 
 interface VoucherCardProps {
   bundle: Bundle;
+  userPoints?: number;
 }
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-export function VoucherCard({ bundle }: VoucherCardProps) {
+export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
   const [loading, setLoading] = useState(false);
+  const [loadingPoints, setLoadingPoints] = useState(false);
 
-  const handlePurchase = async () => {
+  const handleStripePurchase = async () => {
     setLoading(true);
     try {
       const response = await fetch('/api/checkout', {
@@ -38,20 +42,49 @@ export function VoucherCard({ bundle }: VoucherCardProps) {
         }),
       });
 
-      const { sessionId } = await response.json();
+      const data = await response.json();
       
-      const stripe = await stripePromise;
-      if (stripe && sessionId) {
-        // @ts-expect-error - redirectToCheckout exists on Stripe but types may be outdated
-        const { error } = await stripe.redirectToCheckout({ sessionId });
-        if (error) {
-          console.error('Stripe error:', error);
-        }
+      if (data.url) {
+        // Use window.location.assign for cleaner navigation
+        window.location.assign(data.url);
+      } else {
+        console.error('No checkout URL received');
+        alert('Die Zahlungsseite konnte nicht geladen werden. Bitte versuchen Sie es erneut.');
+        setLoading(false);
       }
     } catch (error) {
       console.error('Error:', error);
-    } finally {
+      alert('Keine Verbindung möglich. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.');
       setLoading(false);
+    }
+    // Don't set loading to false in finally - let the page navigate away
+  };
+
+  const handlePointsPurchase = async () => {
+    setLoadingPoints(true);
+    try {
+      const response = await fetch('/api/vouchers/purchase-with-points', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bundleId: bundle.id,
+          pointsCost: bundle.pointsCost,
+          voucherCount: bundle.voucherCount || 10,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        window.location.href = '/shop/success?payment=points';
+      } else {
+        alert(data.error || 'Nicht genügend Punkte verfügbar. Sammeln Sie mehr Punkte durch das Scannen von Belegen.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Keine Verbindung möglich. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.');
+    } finally {
+      setLoadingPoints(false);
     }
   };
 
@@ -107,21 +140,56 @@ export function VoucherCard({ bundle }: VoucherCardProps) {
         </ul>
       </div>
 
-      <Button
-        className={`w-full mt-4 ${bundle.popular ? 'btn-gradient' : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'}`}
-        size="default"
-        onClick={handlePurchase}
-        disabled={loading}
-      >
-        {loading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Wird geladen...
-          </>
-        ) : (
-          'Jetzt kaufen'
+      {/* Payment Options */}
+      <div className="space-y-2 mt-4">
+        {/* Stripe Payment */}
+        <Button
+          className={`w-full ${bundle.popular ? 'btn-gradient' : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'}`}
+          size="default"
+          onClick={handleStripePurchase}
+          disabled={loading || loadingPoints}
+        >
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Wird geladen...
+            </>
+          ) : (
+            <>
+              <CreditCard className="mr-2 h-4 w-4" />
+              Mit Karte kaufen - €{bundle.price}
+            </>
+          )}
+        </Button>
+
+        {/* Points Payment */}
+        {bundle.pointsCost && (
+          <Button
+            className="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30"
+            size="default"
+            onClick={handlePointsPurchase}
+            disabled={loading || loadingPoints || userPoints < bundle.pointsCost}
+          >
+            {loadingPoints ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Wird geladen...
+              </>
+            ) : (
+              <>
+                <Coins className="mr-2 h-4 w-4" />
+                Mit Punkten kaufen - {bundle.pointsCost.toLocaleString()} Punkte
+              </>
+            )}
+          </Button>
         )}
-      </Button>
+        
+        {bundle.pointsCost && userPoints < bundle.pointsCost && (
+          <p className="text-xs text-center text-red-400">
+            Nicht genügend Punkte (Du hast: {userPoints.toLocaleString()})
+          </p>
+        )}
+      </div>
     </div>
   );
 }

@@ -3,16 +3,19 @@ import { redirect } from 'next/navigation';
 import { Navigation } from '@/components/navigation';
 import { VoucherCard } from '@/components/shop/voucher-card';
 import { Sparkles, ShoppingBag, CreditCard, Gift, Zap, Shield, Check } from 'lucide-react';
+import prisma from '@/lib/prisma';
 
 const voucherBundles = [
   {
     id: 'bundle-standard',
     name: 'Standard Bundle',
-    description: 'Gutscheine im Gesamtwert von €400 von gutschein.at',
+    description: '10 Gutscheine im Gesamtwert von €400 von gutschein.at',
     price: 40,
     value: 400,
+    pointsCost: 4000,
+    voucherCount: 10,
     features: [
-      'Gutscheine von Top-Partnern',
+      '10 Gutscheine von Top-Partnern',
       'Sofortige digitale Zustellung',
       'Bis zu 30% Rabatt',
       'Unbegrenzt gültig',
@@ -21,9 +24,11 @@ const voucherBundles = [
   {
     id: 'bundle-premium',
     name: 'Premium Bundle',
-    description: 'Exklusive Gutscheine im Wert von €800 inkl. Bonuspunkte',
+    description: '10 Exklusive Gutscheine im Wert von €800 inkl. Bonuspunkte',
     price: 75,
     value: 800,
+    pointsCost: 7500,
+    voucherCount: 10,
     features: [
       'Alle Standard-Vorteile',
       '+ 5000 Bonuspunkte',
@@ -35,9 +40,11 @@ const voucherBundles = [
   {
     id: 'bundle-deluxe',
     name: 'Deluxe Bundle',
-    description: 'Premium Gutscheine im Wert von €1200 mit Extra-Rewards',
+    description: '10 Premium Gutscheine im Wert von €1200 mit Extra-Rewards',
     price: 100,
     value: 1200,
+    pointsCost: 10000,
+    voucherCount: 10,
     features: [
       'Alle Premium-Vorteile',
       '+ 10000 Bonuspunkte',
@@ -77,6 +84,15 @@ export default async function ShopPage() {
     redirect('/');
   }
 
+  // Get user's current points
+  const pointsTransactions = await prisma.pointsTransaction.findMany({
+    where: { userId },
+  });
+  
+  const userPoints = pointsTransactions.reduce((sum, t) => {
+    return sum + t.amount; // Simply add all amounts (negative amounts will subtract)
+  }, 0);
+
   return (
     <div className="min-h-screen dark-pattern pb-24 lg:pb-8">
       <Navigation />
@@ -106,10 +122,16 @@ export default async function ShopPage() {
 
       <main className="container mx-auto px-4 lg:px-6 py-6">
         <div className="space-y-8">
+          {/* User Points Display */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-center">
+            <p className="text-sm text-white/70 mb-1">Deine verfügbaren Punkte</p>
+            <p className="text-3xl font-bold text-amber-300">{userPoints.toLocaleString()}</p>
+          </div>
+
           {/* Voucher Cards */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {voucherBundles.map((bundle) => (
-              <VoucherCard key={bundle.id} bundle={bundle} />
+              <VoucherCard key={bundle.id} bundle={bundle} userPoints={userPoints} />
             ))}
           </div>
 

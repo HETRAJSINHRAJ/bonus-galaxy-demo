@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
@@ -17,8 +17,14 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { bundleId, price, name } = body;
 
+    // Get user email from Clerk
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    const userEmail = user.emailAddresses[0]?.emailAddress;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
+      customer_email: userEmail, // Stripe will send receipt to this email
       line_items: [
         {
           price_data: {
@@ -41,11 +47,12 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ sessionId: session.id });
+    // Return the checkout URL instead of session ID
+    return NextResponse.json({ url: session.url });
   } catch (error) {
     console.error('Stripe checkout error:', error);
     return NextResponse.json(
-      { error: 'Fehler beim Erstellen der Checkout-Session' },
+      { error: 'Die Zahlungsseite konnte nicht erstellt werden. Bitte versuchen Sie es erneut.' },
       { status: 500 }
     );
   }

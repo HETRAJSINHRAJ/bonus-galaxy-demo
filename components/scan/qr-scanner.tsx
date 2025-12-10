@@ -48,7 +48,7 @@ export function QRScanner() {
       if (response.ok) {
         setResult({
           success: true,
-          message: 'Rechnung erfolgreich gescannt!',
+          message: '🎉 Erfolgreich! Ihre Punkte wurden gutgeschrieben.',
           points: data.points,
           amount: data.amount,
         });
@@ -60,13 +60,13 @@ export function QRScanner() {
       } else {
         setResult({
           success: false,
-          message: data.error || 'Fehler beim Verarbeiten der Rechnung',
+          message: data.error || 'Der Beleg konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.',
         });
       }
     } catch (error) {
       setResult({
         success: false,
-        message: error instanceof Error ? error.message : 'Fehler beim Scannen',
+        message: error instanceof Error ? error.message : 'Keine Verbindung möglich. Bitte überprüfen Sie Ihre Internetverbindung.',
       });
     } finally {
       setLoading(false);
@@ -104,7 +104,7 @@ export function QRScanner() {
         setScanning(false);
         setResult({
           success: false,
-          message: 'Kamera konnte nicht gestartet werden',
+          message: 'Kamerazugriff verweigert. Bitte erlauben Sie den Kamerazugriff in Ihren Browser-Einstellungen.',
         });
       }
     };
@@ -201,7 +201,7 @@ export function QRScanner() {
                 <XCircle className="h-12 w-12 text-red-400" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-white mb-2">Fehler</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">Ups, das hat nicht geklappt</h3>
                 <p className="text-white/60">{result.message}</p>
               </div>
               <Button onClick={() => setResult(null)} className="btn-gradient px-8">
