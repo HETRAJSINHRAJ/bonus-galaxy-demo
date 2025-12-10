@@ -14,6 +14,7 @@ const voucherBundles = [
     value: 400,
     pointsCost: 4000,
     voucherCount: 10,
+    paymentMethod: 'cash' as const, // Only buyable with cash
     features: [
       '10 Gutscheine von Top-Partnern',
       'Sofortige digitale Zustellung',
@@ -29,6 +30,7 @@ const voucherBundles = [
     value: 800,
     pointsCost: 7500,
     voucherCount: 10,
+    paymentMethod: 'points' as const, // Only buyable with points
     features: [
       'Alle Standard-Vorteile',
       '+ 5000 Bonuspunkte',
@@ -45,6 +47,7 @@ const voucherBundles = [
     value: 1200,
     pointsCost: 10000,
     voucherCount: 10,
+    paymentMethod: 'cash' as const, // Only buyable with cash
     features: [
       'Alle Premium-Vorteile',
       '+ 10000 Bonuspunkte',

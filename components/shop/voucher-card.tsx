@@ -16,6 +16,7 @@ interface Bundle {
   popular?: boolean;
   pointsCost?: number;
   voucherCount?: number;
+  paymentMethod?: 'cash' | 'points'; // Determines which payment option is available
 }
 
 interface VoucherCardProps {
@@ -140,54 +141,58 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
         </ul>
       </div>
 
-      {/* Payment Options */}
+      {/* Payment Options - Only show the allowed payment method */}
       <div className="space-y-2 mt-4">
-        {/* Stripe Payment */}
-        <Button
-          className={`w-full ${bundle.popular ? 'btn-gradient' : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'}`}
-          size="default"
-          onClick={handleStripePurchase}
-          disabled={loading || loadingPoints}
-        >
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Wird geladen...
-            </>
-          ) : (
-            <>
-              <CreditCard className="mr-2 h-4 w-4" />
-              Mit Karte kaufen - €{bundle.price}
-            </>
-          )}
-        </Button>
-
-        {/* Points Payment */}
-        {bundle.pointsCost && (
+        {/* Show Stripe Payment ONLY if paymentMethod is 'cash' or not specified */}
+        {(!bundle.paymentMethod || bundle.paymentMethod === 'cash') && (
           <Button
-            className="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30"
+            className={`w-full ${bundle.popular ? 'btn-gradient' : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'}`}
             size="default"
-            onClick={handlePointsPurchase}
-            disabled={loading || loadingPoints || userPoints < bundle.pointsCost}
+            onClick={handleStripePurchase}
+            disabled={loading || loadingPoints}
           >
-            {loadingPoints ? (
+            {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Wird geladen...
               </>
             ) : (
               <>
-                <Coins className="mr-2 h-4 w-4" />
-                Mit Punkten kaufen - {bundle.pointsCost.toLocaleString()} Punkte
+                <CreditCard className="mr-2 h-4 w-4" />
+                Mit Karte kaufen - €{bundle.price}
               </>
             )}
           </Button>
         )}
-        
-        {bundle.pointsCost && userPoints < bundle.pointsCost && (
-          <p className="text-xs text-center text-red-400">
-            Nicht genügend Punkte (Du hast: {userPoints.toLocaleString()})
-          </p>
+
+        {/* Show Points Payment ONLY if paymentMethod is 'points' */}
+        {bundle.paymentMethod === 'points' && bundle.pointsCost && (
+          <>
+            <Button
+              className="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30"
+              size="default"
+              onClick={handlePointsPurchase}
+              disabled={loading || loadingPoints || userPoints < bundle.pointsCost}
+            >
+              {loadingPoints ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Wird geladen...
+                </>
+              ) : (
+                <>
+                  <Coins className="mr-2 h-4 w-4" />
+                  Mit Punkten kaufen - {bundle.pointsCost.toLocaleString()} Punkte
+                </>
+              )}
+            </Button>
+            
+            {userPoints < bundle.pointsCost && (
+              <p className="text-xs text-center text-red-400">
+                Nicht genügend Punkte (Du hast: {userPoints.toLocaleString()})
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>
