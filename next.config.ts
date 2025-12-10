@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
-    'reserves-displays-breakdown-oclc.trycloudflare.com'
+    'nyc-narrative-indicator-certain.trycloudflare.com'
   ]
 };
 

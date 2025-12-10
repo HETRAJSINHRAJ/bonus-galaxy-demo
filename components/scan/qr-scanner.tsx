@@ -19,7 +19,7 @@ export function QRScanner() {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [loading, setLoading] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
-  const router = useRouter();
+  const processingRef = useRef(false);
 
   const parseQRCode = (qrData: string) => {
     const parsedData = parseReceiptQRCode(qrData);
@@ -33,6 +33,10 @@ export function QRScanner() {
   };
 
   const processQRCode = async (qrData: string) => {
+    // Prevent duplicate processing
+    if (processingRef.current) return;
+    processingRef.current = true;
+    
     setLoading(true);
     try {
       const parsedData = parseQRCode(qrData);
@@ -54,8 +58,7 @@ export function QRScanner() {
         });
         
         setTimeout(() => {
-          router.push('/dashboard');
-          router.refresh();
+          window.location.href = '/dashboard';
         }, 3000);
       } else {
         setResult({
@@ -71,6 +74,10 @@ export function QRScanner() {
     } finally {
       setLoading(false);
       stopScanner();
+      // Reset processing flag after a delay to allow retry if needed
+      setTimeout(() => {
+        processingRef.current = false;
+      }, 1000);
     }
   };
 
