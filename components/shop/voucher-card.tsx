@@ -45,10 +45,8 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
       const data = await response.json();
       
       if (data.url) {
-        // Small delay to let React finish cleanup before navigation
-        setTimeout(() => {
-          window.location.href = data.url;
-        }, 100);
+        // Redirect immediately - Stripe handles the page properly
+        window.location.href = data.url;
       } else {
         console.error('No checkout URL received');
         alert('Die Zahlungsseite konnte nicht geladen werden. Bitte versuchen Sie es erneut.');
