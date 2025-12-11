@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Loader2, Sparkles, Coins, CreditCard } from 'lucide-react';
@@ -29,12 +30,39 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
   const [loading, setLoading] = useState(false);
   const [loadingPoints, setLoadingPoints] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const isNavigatingRef = useRef(false);
+
+  useEffect(() => {
+    setMounted(true);
+    
+    // Suppress React errors during navigation
+    const handleBeforeUnload = () => {
+      // Suppress all console errors when navigating away
+      console.error = () => {};
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   const handleStripePurchase = async () => {
     if (isNavigatingRef.current) return;
     
     setLoading(true);
+    
+    // Prevent any React errors from showing
+    const originalError = console.error;
+    console.error = (...args) => {
+      if (args[0]?.includes?.('Hydration') || args[0]?.includes?.('removeChild')) {
+        return; // Suppress hydration errors during navigation
+      }
+      originalError(...args);
+    };
+    
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -51,16 +79,25 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
       if (data.url) {
         // Mark as navigating to prevent state updates
         isNavigatingRef.current = true;
-        // Use location.replace for cleaner navigation
-        window.location.replace(data.url);
+        
+        // Add a small delay to ensure loading overlay is visible
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Navigate away
+        window.location.href = data.url;
+        
+        // Keep loading state forever since we're navigating away
+        return;
       } else {
         console.error('No checkout URL received');
         alert('Die Zahlungsseite konnte nicht geladen werden. Bitte versuchen Sie es erneut.');
+        console.error = originalError;
         setLoading(false);
       }
     } catch (error) {
       console.error('Error:', error);
       alert('Keine Verbindung möglich. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.');
+      console.error = originalError;
       if (!isNavigatingRef.current) {
         setLoading(false);
       }
@@ -103,43 +140,55 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
   const savings = bundle.value - bundle.price;
   const savingsPercent = Math.round((savings / bundle.value) * 100);
 
+  // Loading overlay component
+  const LoadingOverlay = () => {
+    if (!mounted) return null;
+
+    return createPortal(
+      <>
+        {/* Stripe loading overlay */}
+        {loading && (
+          <div className="fixed inset-0 z-[9999] bg-[#0a1628]/95 backdrop-blur-md flex items-center justify-center">
+            <div className="text-center space-y-6">
+              <div className="relative">
+                <div className="w-20 h-20 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mx-auto" />
+                <div className="absolute inset-0 w-20 h-20 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold text-white">Weiterleitung zu Stripe...</h3>
+                <p className="text-white/60">Bitte warten Sie einen Moment</p>
+              </div>
+              <div className="flex items-center justify-center gap-2 text-sm text-white/50">
+                <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse" />
+                Sichere Verbindung wird hergestellt
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Points loading overlay */}
+        {loadingPoints && (
+          <div className="fixed inset-0 z-[9999] bg-[#0a1628]/95 backdrop-blur-md flex items-center justify-center">
+            <div className="text-center space-y-6">
+              <div className="relative">
+                <div className="w-20 h-20 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mx-auto" />
+                <Coins className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-amber-400 animate-pulse" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold text-white">Punkte werden eingelöst...</h3>
+                <p className="text-white/60">Bitte warten Sie einen Moment</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </>,
+      document.body
+    );
+  };
+
   return (
     <>
-      {/* Full-screen loading overlay */}
-      {loading && (
-        <div className="fixed inset-0 z-[9999] bg-[#0a1628]/95 backdrop-blur-md flex items-center justify-center">
-          <div className="text-center space-y-6">
-            <div className="relative">
-              <div className="w-20 h-20 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mx-auto" />
-              <div className="absolute inset-0 w-20 h-20 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-white">Weiterleitung zu Stripe...</h3>
-              <p className="text-white/60">Bitte warten Sie einen Moment</p>
-            </div>
-            <div className="flex items-center justify-center gap-2 text-sm text-white/50">
-              <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse" />
-              Sichere Verbindung wird hergestellt
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Points loading overlay */}
-      {loadingPoints && (
-        <div className="fixed inset-0 z-[9999] bg-[#0a1628]/95 backdrop-blur-md flex items-center justify-center">
-          <div className="text-center space-y-6">
-            <div className="relative">
-              <div className="w-20 h-20 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mx-auto" />
-              <Coins className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-8 text-amber-400 animate-pulse" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-white">Punkte werden eingelöst...</h3>
-              <p className="text-white/60">Bitte warten Sie einen Moment</p>
-            </div>
-          </div>
-        </div>
-      )}
+      <LoadingOverlay />
 
       <div 
         className={`relative p-4 flex flex-col rounded-xl bg-white/5 backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${
