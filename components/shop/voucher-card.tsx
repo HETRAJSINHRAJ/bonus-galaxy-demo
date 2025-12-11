@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Loader2, Sparkles, Coins, CreditCard } from 'lucide-react';
@@ -29,8 +29,11 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
   const [loading, setLoading] = useState(false);
   const [loadingPoints, setLoadingPoints] = useState(false);
+  const isNavigatingRef = useRef(false);
 
   const handleStripePurchase = async () => {
+    if (isNavigatingRef.current) return;
+    
     setLoading(true);
     try {
       const response = await fetch('/api/checkout', {
@@ -46,8 +49,10 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
       const data = await response.json();
       
       if (data.url) {
-        // Redirect immediately - Stripe handles the page properly
-        window.location.href = data.url;
+        // Mark as navigating to prevent state updates
+        isNavigatingRef.current = true;
+        // Use location.replace for cleaner navigation
+        window.location.replace(data.url);
       } else {
         console.error('No checkout URL received');
         alert('Die Zahlungsseite konnte nicht geladen werden. Bitte versuchen Sie es erneut.');
@@ -56,12 +61,15 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
     } catch (error) {
       console.error('Error:', error);
       alert('Keine Verbindung möglich. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.');
-      setLoading(false);
+      if (!isNavigatingRef.current) {
+        setLoading(false);
+      }
     }
-    // Don't set loading to false in finally - let the page navigate away
   };
 
   const handlePointsPurchase = async () => {
+    if (isNavigatingRef.current) return;
+    
     setLoadingPoints(true);
     try {
       const response = await fetch('/api/vouchers/purchase-with-points', {
@@ -77,15 +85,18 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
       const data = await response.json();
       
       if (data.success) {
-        window.location.href = '/shop/success?payment=points';
+        isNavigatingRef.current = true;
+        window.location.replace('/shop/success?payment=points');
       } else {
         alert(data.error || 'Nicht genügend Punkte verfügbar. Sammeln Sie mehr Punkte durch das Scannen von Belegen.');
+        setLoadingPoints(false);
       }
     } catch (error) {
       console.error('Error:', error);
       alert('Keine Verbindung möglich. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.');
-    } finally {
-      setLoadingPoints(false);
+      if (!isNavigatingRef.current) {
+        setLoadingPoints(false);
+      }
     }
   };
 
