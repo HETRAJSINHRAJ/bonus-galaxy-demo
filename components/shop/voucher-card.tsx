@@ -246,5 +246,6 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
         )}
       </div>
     </div>
+    </>
   );
 }
