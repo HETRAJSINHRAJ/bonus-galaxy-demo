@@ -6,7 +6,7 @@ import { RecentReceipts } from '@/components/dashboard/recent-receipts';
 import { SpendingChart } from '@/components/dashboard/spending-chart';
 import { MonthFilter } from '@/components/dashboard/month-filter';
 import { Button } from '@/components/ui/button';
-import { ScanLine, Sparkles, TrendingUp, ChevronRight } from 'lucide-react';
+import { ScanLine, Sparkles, TrendingUp, ChevronRight, Ticket } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function DashboardPage() {
@@ -65,7 +65,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <Link href="/scan" className="group">
               <div className="relative p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 active:scale-95 sm:hover:scale-105">
                 <div className="absolute top-5 sm:top-6 right-5 sm:right-6 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -76,6 +76,19 @@ export default async function DashboardPage() {
                 </div>
                 <h3 className="font-semibold text-white mb-1 text-base sm:text-lg">Rechnung scannen</h3>
                 <p className="text-xs sm:text-sm text-white/60">Sammle Punkte für jeden Einkauf</p>
+              </div>
+            </Link>
+
+            <Link href="/vouchers" className="group">
+              <div className="relative p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 active:scale-95 sm:hover:scale-105">
+                <div className="absolute top-5 sm:top-6 right-5 sm:right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ChevronRight className="h-5 w-5 text-white/40" />
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                  <Ticket className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-semibold text-white mb-1 text-base sm:text-lg">Meine Gutscheine</h3>
+                <p className="text-xs sm:text-sm text-white/60">Gekaufte Gutscheine ansehen</p>
               </div>
             </Link>
 

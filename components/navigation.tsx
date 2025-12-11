@@ -11,7 +11,8 @@ import {
   Settings,
   Sparkles,
   Menu,
-  X
+  X,
+  Ticket
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -28,6 +29,7 @@ const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Scannen', href: '/scan', icon: ScanLine },
   { label: 'Shop', href: '/shop', icon: ShoppingBag },
+  { label: 'Gutscheine', href: '/vouchers', icon: Ticket },
   { label: 'Punkte', href: '/points', icon: Coins },
   { label: 'Einstellungen', href: '/settings', icon: Settings },
 ];
@@ -181,7 +183,7 @@ export function Navigation() {
       <SignedIn>
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#0a1628]/95 backdrop-blur-xl safe-area-pb">
           <div className="flex items-center justify-around px-2 py-2">
-            {navItems.slice(0, 4).map((item) => {
+            {navItems.slice(0, 5).map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
               return (

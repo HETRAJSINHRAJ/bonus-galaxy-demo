@@ -10,7 +10,7 @@ const nextSteps = [
   },
   {
     icon: Gift,
-    text: 'Deine Gutscheine findest du in deinem Dashboard',
+    text: 'Deine Gutscheine findest du unter "Meine Gutscheine"',
   },
   {
     icon: Coins,
@@ -86,8 +86,8 @@ export default function SuccessPage() {
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-in delay-300">
                 <Button asChild className="btn-gradient text-white border-0 hover:scale-105 transition-transform">
-                  <Link href="/dashboard">
-                    Zum Dashboard
+                  <Link href="/vouchers">
+                    Meine Gutscheine ansehen
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Link>
                 </Button>
