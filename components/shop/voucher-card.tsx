@@ -93,11 +93,13 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
   const savingsPercent = Math.round((savings / bundle.value) * 100);
 
   return (
-    <div className={`relative p-4 flex flex-col rounded-xl bg-white/5 backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${
-      bundle.popular 
-        ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/20' 
-        : 'border-white/10 hover:border-white/20'
-    }`}>
+    <div 
+      className={`relative p-4 flex flex-col rounded-xl bg-white/5 backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${
+        bundle.popular 
+          ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/20' 
+          : 'border-white/10 hover:border-white/20'
+      }`}
+    >
       {bundle.popular && (
         <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 btn-gradient text-white border-0 px-3 py-0.5 text-xs">
           <Sparkles className="h-3 w-3 mr-1" />
@@ -132,7 +134,7 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
         <ul className="space-y-2">
           {bundle.features.map((feature, index) => (
             <li key={index} className="flex items-start gap-2 text-xs">
-              <div className="w-4 h-4 bg-indigo-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-4 h-4 bg-indigo-500/20 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                 <Check className="h-2.5 w-2.5 text-indigo-400" />
               </div>
               <span className="text-white/80">{feature}</span>
