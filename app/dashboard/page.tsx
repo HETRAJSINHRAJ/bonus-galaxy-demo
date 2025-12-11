@@ -16,9 +16,6 @@ export default async function DashboardPage() {
     redirect('/');
   }
 
-  const currentDate = new Date();
-  const greeting = currentDate.getHours() < 12 ? 'Guten Morgen' : currentDate.getHours() < 18 ? 'Guten Tag' : 'Guten Abend';
-
   return (
     <div className="min-h-screen dark-pattern pb-24 lg:pb-8">
       <Navigation />
@@ -33,7 +30,7 @@ export default async function DashboardPage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400 animate-pulse" />
-                <span className="text-sm font-medium text-white/60" suppressHydrationWarning>{greeting}</span>
+                <span className="text-sm font-medium text-white/60">Willkommen zurück</span>
               </div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 lg:mb-2">Dashboard</h1>
               <p className="text-sm sm:text-base text-white/70">

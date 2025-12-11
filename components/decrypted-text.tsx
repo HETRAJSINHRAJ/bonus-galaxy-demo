@@ -27,11 +27,13 @@ export default function DecryptedText({
 }: DecryptedTextProps) {
   const [displayText, setDisplayText] = useState(text);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const elementRef = useRef<HTMLSpanElement>(null);
   const hasStarted = useRef(false);
   const isMounted = useRef(true);
 
   useEffect(() => {
+    setMounted(true);
     isMounted.current = true;
     return () => {
       isMounted.current = false;
@@ -114,6 +116,15 @@ export default function DecryptedText({
       setDisplayText(text);
     }
   }, [text, isAnimating]);
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <span ref={elementRef} className={className}>
+        {text}
+      </span>
+    );
+  }
 
   return (
     <span ref={elementRef} className={isAnimating ? encryptedClassName : className}>

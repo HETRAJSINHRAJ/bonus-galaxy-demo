@@ -49,7 +49,12 @@ const BlurText: React.FC<BlurTextProps> = ({
 }) => {
   const elements = animateBy === 'words' ? text.split(' ') : text.split('');
   const [inView, setInView] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -93,6 +98,25 @@ const BlurText: React.FC<BlurTextProps> = ({
   const times = Array.from({ length: stepCount }, (_, i) =>
     stepCount === 1 ? 0 : i / (stepCount - 1)
   );
+
+  // Prevent hydration mismatch by not animating until mounted
+  if (!mounted) {
+    return (
+      <p ref={ref} className={`blur-text ${className} flex flex-wrap`}>
+        {elements.map((segment, index) => (
+          <span
+            key={index}
+            style={{
+              display: 'inline-block',
+            }}
+          >
+            {segment === ' ' ? '\u00A0' : segment}
+            {animateBy === 'words' && index < elements.length - 1 && '\u00A0'}
+          </span>
+        ))}
+      </p>
+    );
+  }
 
   return (
     <p ref={ref} className={`blur-text ${className} flex flex-wrap`}>

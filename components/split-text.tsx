@@ -44,7 +44,12 @@ const SplitText = ({
 }: SplitTextProps) => {
   const containerRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Split text into elements
   const splitElements = useMemo(() => {
@@ -143,6 +148,15 @@ const SplitText = ({
   const classes = `split-parent ${className}`;
 
   const Tag = tag as ElementType;
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <Tag ref={containerRef} style={style} className={classes}>
+        {text}
+      </Tag>
+    );
+  }
 
   return (
     <Tag ref={containerRef} style={style} className={classes}>

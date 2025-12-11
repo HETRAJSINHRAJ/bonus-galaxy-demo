@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, ReactNode } from 'react';
+import { useEffect, useRef, ReactNode, useState } from 'react';
 
 interface ParallaxContainerProps {
   children?: ReactNode;
@@ -12,8 +12,10 @@ export function ParallaxContainer({ children, speed = 0.5, className = '' }: Par
   const elementRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const isMountedRef = useRef(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     isMountedRef.current = true;
     
     if (!elementRef.current) return;
@@ -68,6 +70,15 @@ export function ParallaxContainer({ children, speed = 0.5, className = '' }: Par
       }
     };
   }, [speed]);
+
+  // Prevent hydration mismatch - render without transform initially
+  if (!mounted) {
+    return (
+      <div className={className}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <div ref={elementRef} className={className}>
