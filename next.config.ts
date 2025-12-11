@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
-    'nyc-narrative-indicator-certain.trycloudflare.com'
+    'https://bonus-galaxy-demo.vercel.app'
   ]
 };
 

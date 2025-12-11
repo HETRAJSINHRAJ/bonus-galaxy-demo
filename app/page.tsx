@@ -1,3 +1,5 @@
+'use client';
+
 import { SignInButton, SignUpButton } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -25,8 +27,10 @@ import { ParallaxContainer } from '@/components/parallax-container';
 import DecryptedText from '@/components/decrypted-text';
 import SplitText from '@/components/split-text';
 import BlurText from '@/components/blur-text';
+import { VideoModal } from '@/components/video-modal';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
 
 const features = [
   {
@@ -117,9 +121,18 @@ const testimonials = [
 ];
 
 export default function HomePage() {
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
+
   return (
     <div className="min-h-screen dark-pattern">
       <Navigation />
+      
+      {/* Video Modal */}
+      <VideoModal 
+        isOpen={isVideoOpen} 
+        onClose={() => setIsVideoOpen(false)} 
+        videoSrc="/watch-demo.MP4" 
+      />
       
       {/* Hero Section - BonusGalaxy Style with Gradient */}
       <section className="relative overflow-hidden pt-24 pb-16 sm:pt-32 sm:pb-24 lg:pt-40 lg:pb-32 min-h-[500px] sm:min-h-[600px] lg:min-h-[700px]">
@@ -185,11 +198,17 @@ export default function HomePage() {
               
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button size="lg" className="btn-gradient text-base px-6 sm:px-8 h-12 sm:h-14 rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 font-semibold">
-                  Download the app
-                  <ArrowRight className="h-5 w-5 ml-2" />
-                </Button>
-                <Button size="lg" className="text-base px-6 sm:px-8 h-12 sm:h-14 border-2 border-white bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 hover:border-white rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 font-semibold">
+                <a href="/api/download" download="BonusGalaxy.exe" className="inline-block">
+                  <Button size="lg" className="btn-gradient text-base px-6 sm:px-8 h-12 sm:h-14 rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 font-semibold w-full">
+                    Download the app
+                    <ArrowRight className="h-5 w-5 ml-2" />
+                  </Button>
+                </a>
+                <Button 
+                  size="lg" 
+                  onClick={() => setIsVideoOpen(true)}
+                  className="text-base px-6 sm:px-8 h-12 sm:h-14 border-2 border-white bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 hover:border-white rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 font-semibold"
+                >
                   <Download className="h-5 w-5 mr-2" />
                   Watch demo
                 </Button>
@@ -259,7 +278,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section - Bento Grid Style with Parallax */}
-      <section className="relative py-16 sm:py-24 lg:py-32 bg-[#0a1628] overflow-hidden">
+      <section id="features" className="relative py-16 sm:py-24 lg:py-32 bg-[#0a1628] overflow-hidden">
         {/* Parallax background elements - Hidden on mobile */}
         <ParallaxContainer speed={0.3} className="hidden sm:block absolute top-0 left-1/4 w-64 h-64 rounded-full bg-indigo-500/5 blur-3xl" />
         <ParallaxContainer speed={0.5} className="hidden sm:block absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-purple-500/5 blur-3xl" />
@@ -314,7 +333,7 @@ export default function HomePage() {
       </section>
 
       {/* How It Works - Enhanced Timeline Style */}
-      <section className="relative py-16 sm:py-24 lg:py-32 bg-[#0f1f35] overflow-hidden">
+      <section id="how-it-works" className="relative py-16 sm:py-24 lg:py-32 bg-[#0f1f35] overflow-hidden">
         {/* Floating background elements - Hidden on mobile */}
         <ParallaxContainer speed={0.4} className="hidden sm:block absolute top-20 left-10 w-32 h-32 rounded-full bg-purple-500/10 blur-3xl" />
         <ParallaxContainer speed={0.6} className="hidden sm:block absolute bottom-20 right-10 w-40 h-40 rounded-full bg-blue-500/10 blur-3xl" />
@@ -416,7 +435,7 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials with Parallax */}
-      <section className="relative py-16 sm:py-24 lg:py-32 bg-[#0a1628] overflow-hidden">
+      <section id="advantages" className="relative py-16 sm:py-24 lg:py-32 bg-[#0a1628] overflow-hidden">
         <ParallaxContainer speed={0.4} className="hidden sm:block absolute top-1/4 left-0 w-96 h-96 rounded-full bg-indigo-500/5 blur-3xl" />
         <ParallaxContainer speed={0.3} className="hidden sm:block absolute bottom-1/4 right-0 w-96 h-96 rounded-full bg-purple-500/5 blur-3xl" />
         
@@ -519,17 +538,18 @@ export default function HomePage() {
                 
                 {/* CTA Buttons - Smaller */}
                 <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                  <SignUpButton mode="modal">
+                  <a href="/api/download" download="BonusGalaxy.exe" className="inline-block">
                     <Button 
                       size="default" 
-                      className="group text-sm sm:text-base px-6 sm:px-8 h-11 sm:h-12 bg-white text-indigo-600 hover:bg-gray-50 shadow-xl hover:shadow-white/20 hover:scale-105 transition-all duration-300 font-bold rounded-lg"
+                      className="group text-sm sm:text-base px-6 sm:px-8 h-11 sm:h-12 bg-white text-indigo-600 hover:bg-gray-50 shadow-xl hover:shadow-white/20 hover:scale-105 transition-all duration-300 font-bold rounded-lg w-full"
                     >
                       <Download className="h-4 w-4 mr-2 group-hover:animate-bounce" />
                       Start now
                     </Button>
-                  </SignUpButton>
+                  </a>
                   <Button 
-                    size="default" 
+                    size="default"
+                    onClick={() => setIsVideoOpen(true)}
                     className="group text-sm sm:text-base px-6 sm:px-8 h-11 sm:h-12 bg-white/10 backdrop-blur-md border-2 border-white/50 text-white hover:bg-white/20 hover:border-white hover:scale-105 transition-all duration-300 font-bold rounded-lg shadow-lg"
                   >
                     Learn more
@@ -565,7 +585,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 bg-[#0a1628]">
+      <footer id="contact" className="border-t border-white/10 bg-[#0a1628]">
         <div className="container mx-auto px-4 lg:px-8 py-16">
           <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
             {/* Brand */}

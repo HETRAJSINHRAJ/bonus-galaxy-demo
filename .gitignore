@@ -50,3 +50,8 @@ dev.db-journal
 next-env.d.ts
 
 /lib/generated/prisma
+
+# Large video files
+public/watch-demo.MP4
+public/*.mp4
+public/*.MP4

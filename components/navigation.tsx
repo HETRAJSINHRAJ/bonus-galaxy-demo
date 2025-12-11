@@ -59,13 +59,13 @@ export function Navigation() {
               {isHomePage && (
                 <nav className="hidden lg:flex items-center gap-6">
                   {publicNavItems.map((item) => (
-                    <Link
+                    <a
                       key={item.href}
                       href={item.href}
                       className="text-sm font-medium text-white/90 hover:text-white transition-colors"
                     >
                       {item.label}
-                    </Link>
+                    </a>
                   ))}
                 </nav>
               )}
