@@ -36,10 +36,10 @@ export function Navbar() {
   }, [mobileMenuOpen])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/30">
+    <header className="fixed top-0 left-0 right-0 z-[100] bg-background/95 backdrop-blur-md border-b border-border/30">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 shrink-0 z-50">
+        <Link href="/" className="flex items-center gap-3 shrink-0 relative z-[110]">
           <img src="/images/bonus-galaxy-logo.png" alt="Bonus Galaxy" className="w-10 h-10 object-contain" />
           <span className="font-bold text-lg text-foreground hidden sm:inline">Bonus Galaxy</span>
         </Link>
@@ -116,7 +116,7 @@ export function Navbar() {
         </nav>
 
         {/* Mobile Navigation */}
-        <div className="flex lg:hidden items-center gap-3">
+        <div className="flex lg:hidden items-center gap-3 relative z-[110]">
           {/* Language Switcher - Mobile */}
           <button
             onClick={toggleLanguage}
@@ -147,14 +147,14 @@ export function Navbar() {
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 top-[57px] bg-background/80 backdrop-blur-sm z-[60] lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Mobile Menu Panel */}
       <div
-        className={`fixed top-[57px] right-0 bottom-0 w-full max-w-sm bg-background border-l border-border/30 z-40 lg:hidden transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-[57px] right-0 bottom-0 w-full max-w-sm bg-background border-l border-border/30 shadow-2xl z-[70] lg:hidden transform transition-transform duration-300 ease-in-out ${
           mobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
