@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from '@clerk/nextjs';
+import { LanguageProvider } from '@/lib/i18n/language-context';
+import { Navbar } from '@/components/navbar';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
+  variable: "--font-space-grotesk",
 });
 
 const geistMono = Geist_Mono({
@@ -54,8 +56,11 @@ export default function RootLayout({
       }}
     >
       <html lang="de" suppressHydrationWarning>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
-          {children}
+        <body className={`${spaceGrotesk.className} ${geistMono.variable} antialiased`} suppressHydrationWarning>
+          <LanguageProvider>
+            <Navbar />
+            {children}
+          </LanguageProvider>
         </body>
       </html>
     </ClerkProvider>
