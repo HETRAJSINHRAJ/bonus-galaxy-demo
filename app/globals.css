@@ -393,3 +393,47 @@
 .animate-twinkle {
   animation: twinkle 3s ease-in-out infinite;
 }
+
+/* QR Scanner scanning line animation */
+@keyframes scan-line {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.animate-scan-line {
+  animation: scan-line 2s ease-in-out infinite;
+}
+
+/* QR Code highlight effect - yellow corners */
+@keyframes qr-highlight-pulse {
+  0%, 100% {
+    border-color: #fbbf24;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+  }
+  50% {
+    border-color: #f59e0b;
+    box-shadow: 0 0 40px rgba(251, 191, 36, 0.8);
+  }
+}
+
+.qr-highlight {
+  animation: qr-highlight-pulse 1.5s ease-in-out infinite;
+}
+
+/* Yellow corner markers for detected QR */
+.qr-corner-yellow {
+  border-color: #fbbf24;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+}
