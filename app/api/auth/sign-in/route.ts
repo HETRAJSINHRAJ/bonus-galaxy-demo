@@ -12,50 +12,89 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get all users and find the one with matching email
     const client = await clerkClient();
-    const users = await client.users.getUserList({
-      emailAddress: [email],
+    
+    // Clerk Frontend API URL - extracted from publishable key
+    const clerkFrontendUrl = 'https://wealthy-werewolf-56.clerk.accounts.dev/v1';
+
+    // Step 1: Create sign-in attempt via Clerk Frontend API
+    const signInResponse = await fetch(`${clerkFrontendUrl}/client/sign_ins`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        identifier: email,
+      }),
     });
 
-    if (users.data.length === 0) {
+    if (!signInResponse.ok) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
-    const user = users.data[0];
+    const signInData = await signInResponse.json();
+    const signInId = signInData.response?.id;
 
-    // Verify password using Clerk's sign-in endpoint
-    // Note: This requires the user to have a password set
-    try {
-      // Create a session token for the user
-      const token = await client.users.getUserOauthAccessToken(
-        user.id,
-        'oauth_custom'
-      );
-
-      // Get user sessions
-      const sessions = await client.users.getUserList({
-        userId: [user.id],
-      });
-
-      return NextResponse.json({
-        token: token.data[0]?.token || '',
-        userId: user.id,
-        sessionId: user.id, // Using userId as sessionId for simplicity
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.emailAddresses[0]?.emailAddress,
-      });
-    } catch (error) {
-      console.error('Password verification error:', error);
+    if (!signInId) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
+
+    // Step 2: Attempt password verification
+    const attemptResponse = await fetch(
+      `${clerkFrontendUrl}/client/sign_ins/${signInId}/attempt_first_factor`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          strategy: 'password',
+          password: password,
+        }),
+      }
+    );
+
+    if (!attemptResponse.ok) {
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+
+    const attemptData = await attemptResponse.json();
+    const userId = attemptData.response?.user_id;
+    const sessionId = attemptData.response?.created_session_id;
+
+    if (!userId || !sessionId) {
+      return NextResponse.json(
+        { error: 'Authentication failed' },
+        { status: 401 }
+      );
+    }
+
+    // Step 3: Get user details from Backend API
+    const user = await client.users.getUser(userId);
+
+    // Step 4: Create a sign-in token for the mobile app
+    const signInToken = await client.signInTokens.createSignInToken({
+      userId: user.id,
+      expiresInSeconds: 2592000, // 30 days
+    });
+
+    return NextResponse.json({
+      token: signInToken.token,
+      userId: user.id,
+      sessionId: sessionId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.emailAddresses[0]?.emailAddress,
+    });
   } catch (error) {
     console.error('Sign-in error:', error);
     return NextResponse.json(

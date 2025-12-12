@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
       // Create a session token for the new user
       const token = await client.signInTokens.createSignInToken({
         userId: user.id,
+        expiresInSeconds: 2592000, // 30 days
       });
 
       return NextResponse.json({
