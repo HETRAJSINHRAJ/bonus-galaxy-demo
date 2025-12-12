@@ -167,9 +167,9 @@ export function QRScanner() {
       const guidance = detectQRPosition(imageData, canvas.width, canvas.height);
       setGuidance(guidance);
       
-      // Track scan attempts for better error messages - ultra-fast tracking
+      // Track scan attempts for better error messages - faster tracking
       const now = Date.now();
-      if (now - lastScanTime > 200) { // 200ms intervals
+      if (now - lastScanTime > 100) { // 100ms intervals for faster feedback
         setScanAttempts(prev => prev + 1);
         setLastScanTime(now);
       }
@@ -250,7 +250,7 @@ export function QRScanner() {
     let edgePixels = 0; // Count high-contrast edges (QR patterns)
     
     // Sample pixels in a grid pattern - optimized step size
-    const step = 15; // Increased from 10 to 15 for 2.25x speed improvement
+    const step = 12; // Balanced for speed and accuracy
     for (let y = 0; y < height; y += step) {
       for (let x = 0; x < width; x += step) {
         const i = (y * width + x) * 4;
@@ -279,7 +279,7 @@ export function QRScanner() {
     // Very lenient thresholds for any angle and distance
     const darkRatio = darkPixels / totalChecked;
     const edgeRatio = edgePixels / totalChecked;
-    const hasQRPattern = darkPixels >= 10 && darkRatio >= 0.02 && darkRatio <= 0.6; // Very lenient: min 10 pixels, 2-60% coverage
+    const hasQRPattern = darkPixels >= 8 && darkRatio >= 0.015 && darkRatio <= 0.65; // Ultra lenient: min 8 pixels, 1.5-65% coverage
     
     // No QR code detected
     if (!hasQRPattern) {
@@ -302,20 +302,20 @@ export function QRScanner() {
     
     // Check if QR is well-positioned (centered and right size)
     // Very lenient positioning - allow any angle
-    const isWellPositioned = Math.abs(offsetX) <= threshold * 1.5 && Math.abs(offsetY) <= threshold * 1.5 && darkRatio >= 0.02 && darkRatio <= 0.6;
+    const isWellPositioned = Math.abs(offsetX) <= threshold * 1.5 && Math.abs(offsetY) <= threshold * 1.5 && darkRatio >= 0.015 && darkRatio <= 0.65;
     
     // REMOVED quality checks - let the scanner try to scan without blocking
     
     // Check if QR code is too small or too large
     // Very lenient thresholds for any distance
-    if (darkRatio < 0.02) { // Very small - too far
+    if (darkRatio < 0.015) { // Very small - too far
       return {
         direction: 'closer',
         message: 'Näher',
         icon: <ZoomIn className="h-5 w-5" />,
         severity: 'info'
       };
-    } else if (darkRatio > 0.6) { // Very large - too close
+    } else if (darkRatio > 0.65) { // Very large - too close
       return {
         direction: 'farther',
         message: 'Weiter weg',
@@ -375,8 +375,8 @@ export function QRScanner() {
     
     const steadyDuration = now - steadyStartTime;
     
-    // After 2 seconds of being steady without scanning, show helpful message
-    if (steadyDuration > 2000) {
+    // After 1.5 seconds of being steady without scanning, show helpful message
+    if (steadyDuration > 1500) {
       return {
         direction: 'blurry',
         message: 'Nicht lesbar - Besseres Licht oder näher',
@@ -407,16 +407,18 @@ export function QRScanner() {
           {
             fps: 60, // Maximum FPS for instant scanning
             qrbox: function(viewfinderWidth, viewfinderHeight) {
-              // Use full screen for maximum detection area
+              // Larger scan box for better detection
+              const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.85;
               return {
-                width: Math.floor(viewfinderWidth * 0.95),
-                height: Math.floor(viewfinderHeight * 0.95)
+                width: Math.floor(size),
+                height: Math.floor(size)
               };
             },
             aspectRatio: 1.0, // Square aspect ratio for better QR detection
             disableFlip: false, // Allow flipped QR codes for any angle scanning
           },
           (decodedText) => {
+            // Process immediately without delay
             processQRCode(decodedText);
           },
           (errorMessage) => {
@@ -424,8 +426,8 @@ export function QRScanner() {
           }
         );
         
-        // Start frame analysis for positioning guidance - balanced interval
-        detectionIntervalRef.current = setInterval(analyzeFrame, 150); // 150ms for balance between speed and performance
+        // Start frame analysis for positioning guidance - faster interval
+        detectionIntervalRef.current = setInterval(analyzeFrame, 100); // 100ms for faster feedback
         
       } catch (error) {
         console.error('Scanner error:', error);
