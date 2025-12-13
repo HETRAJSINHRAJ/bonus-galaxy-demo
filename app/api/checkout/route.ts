@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { bundleId, price, name } = body;
+    const { bundleId, price, name, platform, successUrl, cancelUrl } = body;
 
     // Get user email from Clerk
     const client = await clerkClient();
@@ -39,8 +39,8 @@ export async function POST(request: Request) {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/shop/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/shop`,
+      success_url: successUrl || `${process.env.NEXT_PUBLIC_APP_URL}/shop/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_APP_URL}/shop`,
       metadata: {
         userId,
         bundleId,
