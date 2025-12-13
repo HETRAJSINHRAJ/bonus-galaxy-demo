@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     const receipts = await prisma.receipt.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { receiptDate: 'desc' },
       take: limit,
     });
 
