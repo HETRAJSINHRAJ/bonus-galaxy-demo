@@ -63,16 +63,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if receipt is too old (30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
-    if (parsedData.receiptDate < thirtyDaysAgo) {
-      return NextResponse.json(
-        { error: 'Dieser Beleg ist zu alt. Nur Belege der letzten 30 Tage sind gültig.' },
-        { status: 400 }
-      );
-    }
+    // Note: Date validation removed - receipts can be scanned regardless of age
 
     // Check minimum amount (€5.00)
     if (parsedData.amount < 5.00) {
