@@ -84,6 +84,13 @@ export async function GET() {
           totalCount: mockMissions.length
         }
       }
+    }, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+      }
     });
   } catch (error) {
     console.error('Error fetching missions:', error);
