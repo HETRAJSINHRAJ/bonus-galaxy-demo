@@ -72,8 +72,6 @@ export function QRScannerNew() {
           errorMessage = '⚠️ Dieser Beleg wurde bereits gescannt.';
         } else if (data.error?.includes('abgelaufen') || data.error?.includes('expired')) {
           errorMessage = '⏰ Beleg zu alt. Nur letzte 30 Tage gültig.';
-        } else if (data.error?.includes('Mindestbetrag') || data.error?.includes('minimum')) {
-          errorMessage = '💰 Betrag zu niedrig. Mindestbetrag: €5.00';
         }
         
         setResult({

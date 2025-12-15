@@ -63,15 +63,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Note: Date validation removed - receipts can be scanned regardless of age
-
-    // Check minimum amount (€5.00)
-    if (parsedData.amount < 5.00) {
-      return NextResponse.json(
-        { error: 'Der Betrag ist zu niedrig. Mindestbetrag: €5.00' },
-        { status: 400 }
-      );
-    }
+    // Note: Date validation and minimum amount validation removed - receipts can be scanned regardless of age or amount
 
     // Calculate points: €1 = 100 points
     const pointsEarned = Math.floor(parsedData.amount * 100);
