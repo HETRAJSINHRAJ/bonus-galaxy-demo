@@ -46,16 +46,32 @@ export function parseReceiptQRCode(qrData: string): ParsedReceiptData {
     throw new Error('Ungültiges Datum im QR-Code');
   }
 
-  // Betrag extrahieren (Index 5 für R1-AT3 Format)
-  let amountStr = parts[5];
+  // Beträge extrahieren und summieren (ab Index 5)
+  // Austrian QR codes have multiple amount fields that need to be summed
+  let totalAmount = 0;
   
-  // Entfernen von zusätzlichen Zeichen nach dem Betrag
-  amountStr = amountStr.split('+')[0];
-  amountStr = amountStr.replace(',', '.');
+  // Look for amount fields starting from index 5
+  for (let i = 5; i < parts.length; i++) {
+    let amountStr = parts[i];
+    
+    // Stop if we hit non-amount data (contains letters or special chars except comma/plus)
+    if (!/^[\d,+.]+$/.test(amountStr)) {
+      break;
+    }
+    
+    // Clean up the amount string
+    amountStr = amountStr.split('+')[0]; // Remove signature part
+    amountStr = amountStr.replace(',', '.'); // Convert comma to dot
+    
+    const amount = parseFloat(amountStr);
+    
+    // Add to total if it's a valid positive number
+    if (!isNaN(amount) && amount >= 0) {
+      totalAmount += amount;
+    }
+  }
   
-  const amount = parseFloat(amountStr);
-  
-  if (isNaN(amount) || amount < 0) {
+  if (totalAmount < 0) {
     throw new Error('Ungültiger Betrag im QR-Code');
   }
 
@@ -72,7 +88,7 @@ export function parseReceiptQRCode(qrData: string): ParsedReceiptData {
   return {
     qrCodeData: qrData,
     receiptDate,
-    amount,
+    amount: totalAmount,
     taxId,
   };
 }
