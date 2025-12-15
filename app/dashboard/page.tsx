@@ -62,7 +62,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
             <Link href="/scan" className="group">
               <div className="relative p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 active:scale-95 sm:hover:scale-105">
                 <div className="absolute top-5 sm:top-6 right-5 sm:right-6 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -73,6 +73,21 @@ export default async function DashboardPage() {
                 </div>
                 <h3 className="font-semibold text-white mb-1 text-base sm:text-lg">Rechnung scannen</h3>
                 <p className="text-xs sm:text-sm text-white/60">Sammle Punkte für jeden Einkauf</p>
+              </div>
+            </Link>
+
+            <Link href="/missions" className="group">
+              <div className="relative p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 active:scale-95 sm:hover:scale-105">
+                <div className="absolute top-5 sm:top-6 right-5 sm:right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ChevronRight className="h-5 w-5 text-white/40" />
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                  <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-white mb-1 text-base sm:text-lg">Missionen</h3>
+                <p className="text-xs sm:text-sm text-white/60">Erfülle galaktische Aufgaben</p>
               </div>
             </Link>
 

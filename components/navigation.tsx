@@ -12,7 +12,8 @@ import {
   Sparkles,
   Menu,
   X,
-  Ticket
+  Ticket,
+  Rocket
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -28,6 +29,7 @@ const publicNavItems = [
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Scannen', href: '/scan', icon: ScanLine },
+  { label: 'Missionen', href: '/missions', icon: Rocket },
   { label: 'Shop', href: '/shop', icon: ShoppingBag },
   { label: 'Gutscheine', href: '/vouchers', icon: Ticket },
   { label: 'Punkte', href: '/points', icon: Coins },
