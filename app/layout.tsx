@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from '@clerk/nextjs';
 import { LanguageProvider } from '@/lib/i18n/language-context';
 import { Navbar } from '@/components/navbar';
+import { ErrorSuppressor } from '@/components/error-suppressor';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -56,7 +57,34 @@ export default function RootLayout({
       }}
     >
       <html lang="de" suppressHydrationWarning>
+        <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                // Suppress DOM manipulation errors immediately (before React loads)
+                // This is critical for Chrome translation compatibility
+                (function() {
+                  var originalError = console.error;
+                  console.error = function() {
+                    var args = Array.prototype.slice.call(arguments);
+                    var errorMessage = args[0] ? args[0].toString() : '';
+                    if (
+                      errorMessage.indexOf('removeChild') !== -1 ||
+                      errorMessage.indexOf('insertBefore') !== -1 ||
+                      errorMessage.indexOf('not a child') !== -1 ||
+                      errorMessage.indexOf('Failed to execute') !== -1
+                    ) {
+                      return;
+                    }
+                    originalError.apply(console, args);
+                  };
+                })();
+              `,
+            }}
+          />
+        </head>
         <body className={`${spaceGrotesk.className} ${geistMono.variable} antialiased`} suppressHydrationWarning>
+          <ErrorSuppressor />
           <LanguageProvider>
             <Navbar />
             {children}

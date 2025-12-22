@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { Navigation } from '@/components/navigation';
-import { MissionWebView } from '@/components/missions/mission-webview';
+import { MissionsList } from '@/components/missions/missions-list';
 
 export default async function MissionsPage() {
   const { userId } = await auth();
@@ -36,7 +36,7 @@ export default async function MissionsPage() {
       </div>
 
       <main className="container mx-auto px-4 lg:px-8 py-6 lg:py-8 pb-24 lg:pb-8">
-        <MissionWebView />
+        <MissionsList />
       </main>
     </div>
   );

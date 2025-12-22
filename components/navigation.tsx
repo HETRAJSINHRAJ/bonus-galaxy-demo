@@ -8,7 +8,6 @@ import {
   ScanLine, 
   ShoppingBag, 
   Coins, 
-  Settings,
   Sparkles,
   Menu,
   X,
@@ -33,7 +32,6 @@ const navItems = [
   { label: 'Shop', href: '/shop', icon: ShoppingBag },
   { label: 'Gutscheine', href: '/vouchers', icon: Ticket },
   { label: 'Punkte', href: '/points', icon: Coins },
-  { label: 'Einstellungen', href: '/settings', icon: Settings },
 ];
 
 export function Navigation() {

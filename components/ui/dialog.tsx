@@ -54,8 +54,22 @@ function DialogContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
 }) {
+  const [mounted, setMounted] = React.useState(false)
+  const containerRef = React.useRef<HTMLElement | null>(null)
+
+  React.useEffect(() => {
+    setMounted(true)
+    containerRef.current = document.body
+    return () => {
+      setMounted(false)
+      containerRef.current = null
+    }
+  }, [])
+
+  if (!mounted || !containerRef.current) return null
+
   return (
-    <DialogPortal data-slot="dialog-portal">
+    <DialogPrimitive.Portal container={containerRef.current}>
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
@@ -76,7 +90,7 @@ function DialogContent({
           </DialogPrimitive.Close>
         )}
       </DialogPrimitive.Content>
-    </DialogPortal>
+    </DialogPrimitive.Portal>
   )
 }
 

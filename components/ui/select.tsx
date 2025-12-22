@@ -57,8 +57,22 @@ function SelectContent({
   align = "center",
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
+  const [mounted, setMounted] = React.useState(false)
+  const containerRef = React.useRef<HTMLElement | null>(null)
+
+  React.useEffect(() => {
+    setMounted(true)
+    containerRef.current = document.body
+    return () => {
+      setMounted(false)
+      containerRef.current = null
+    }
+  }, [])
+
+  if (!mounted || !containerRef.current) return null
+
   return (
-    <SelectPrimitive.Portal>
+    <SelectPrimitive.Portal container={containerRef.current}>
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(

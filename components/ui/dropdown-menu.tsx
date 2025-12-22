@@ -36,8 +36,22 @@ function DropdownMenuContent({
   sideOffset = 4,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+  const [mounted, setMounted] = React.useState(false)
+  const containerRef = React.useRef<HTMLElement | null>(null)
+
+  React.useEffect(() => {
+    setMounted(true)
+    containerRef.current = document.body
+    return () => {
+      setMounted(false)
+      containerRef.current = null
+    }
+  }, [])
+
+  if (!mounted || !containerRef.current) return null
+
   return (
-    <DropdownMenuPrimitive.Portal>
+    <DropdownMenuPrimitive.Portal container={containerRef.current}>
       <DropdownMenuPrimitive.Content
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}

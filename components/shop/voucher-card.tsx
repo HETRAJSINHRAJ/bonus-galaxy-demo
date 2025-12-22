@@ -35,17 +35,8 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
 
   useEffect(() => {
     setMounted(true);
-    
-    // Suppress React errors during navigation
-    const handleBeforeUnload = () => {
-      // Suppress all console errors when navigating away
-      console.error = () => {};
-    };
-    
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      setMounted(false);
     };
   }, []);
 
@@ -53,15 +44,6 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
     if (isNavigatingRef.current) return;
     
     setLoading(true);
-    
-    // Prevent any React errors from showing
-    const originalError = console.error;
-    console.error = (...args) => {
-      if (args[0]?.includes?.('Hydration') || args[0]?.includes?.('removeChild')) {
-        return; // Suppress hydration errors during navigation
-      }
-      originalError(...args);
-    };
     
     try {
       const response = await fetch('/api/checkout', {
@@ -80,9 +62,6 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
         // Mark as navigating to prevent state updates
         isNavigatingRef.current = true;
         
-        // Add a small delay to ensure loading overlay is visible
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
         // Navigate away
         window.location.href = data.url;
         
@@ -91,13 +70,11 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
       } else {
         console.error('No checkout URL received');
         alert('Die Zahlungsseite konnte nicht geladen werden. Bitte versuchen Sie es erneut.');
-        console.error = originalError;
         setLoading(false);
       }
     } catch (error) {
       console.error('Error:', error);
       alert('Keine Verbindung möglich. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.');
-      console.error = originalError;
       if (!isNavigatingRef.current) {
         setLoading(false);
       }
@@ -142,7 +119,7 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
 
   // Loading overlay component
   const LoadingOverlay = () => {
-    if (!mounted) return null;
+    if (!mounted || typeof document === 'undefined') return null;
 
     return createPortal(
       <>
