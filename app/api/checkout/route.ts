@@ -7,20 +7,27 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 export async function POST(request: Request) {
+  console.log('🛒 Checkout request received');
+  
   try {
     const { userId } = await auth();
 
     if (!userId) {
+      console.error('❌ Unauthorized checkout attempt');
       return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 });
     }
 
     const body = await request.json();
     const { bundleId, price, name, platform, successUrl, cancelUrl } = body;
 
+    console.log('📦 Checkout details:', { userId, bundleId, price, name });
+
     // Get user email from Clerk
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
     const userEmail = user.emailAddresses[0]?.emailAddress;
+
+    console.log('📧 User email:', userEmail);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -47,10 +54,14 @@ export async function POST(request: Request) {
       },
     });
 
+    console.log('✅ Stripe session created:', session.id);
+    console.log('🔗 Checkout URL:', session.url);
+    console.log('📝 Metadata:', session.metadata);
+
     // Return the checkout URL instead of session ID
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    console.error('Stripe checkout error:', error);
+    console.error('❌ Stripe checkout error:', error);
     return NextResponse.json(
       { error: 'Die Zahlungsseite konnte nicht erstellt werden. Bitte versuchen Sie es erneut.' },
       { status: 500 }

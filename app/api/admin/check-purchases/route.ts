@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import Stripe from 'stripe';
+import { generateUniquePIN, generateQRData, calculateExpirationDate } from '@/lib/voucher-utils';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-10-29.clover',
@@ -124,7 +125,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create the purchase
+    // Generate PIN and QR code for the voucher
+    const pinCode = await generateUniquePIN(prisma);
+    const purchaseId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const qrCodeData = generateQRData(purchaseId, sessionUserId, pinCode);
+    const expiresAt = calculateExpirationDate();
+
+    // Create the purchase with redemption codes
     const purchase = await prisma.voucherPurchase.create({
       data: {
         userId: sessionUserId,
@@ -132,7 +139,17 @@ export async function POST(request: Request) {
         stripeSessionId: sessionId,
         status: 'completed',
         amount: (session.amount_total || 0) / 100,
+        pinCode,
+        qrCodeData: qrCodeData.replace(purchaseId, ''), // Placeholder, will update
+        expiresAt,
       },
+    });
+
+    // Update QR code with actual purchase ID
+    const finalQRData = generateQRData(purchase.id, sessionUserId, pinCode);
+    await prisma.voucherPurchase.update({
+      where: { id: purchase.id },
+      data: { qrCodeData: finalQRData }
     });
 
     // Award bonus points if applicable

@@ -15,15 +15,37 @@ export default async function VouchersPage() {
   }
 
   // Get user's voucher purchases
-  const purchases = await prisma.voucherPurchase.findMany({
+  const purchasesRaw = await prisma.voucherPurchase.findMany({
     where: { 
       userId,
       status: 'completed'
     },
     orderBy: {
       createdAt: 'desc'
+    },
+    select: {
+      id: true,
+      voucherId: true,
+      amount: true,
+      createdAt: true,
+      stripeSessionId: true,
+      pinCode: true,
+      qrCodeData: true,
+      isRedeemed: true,
+      redeemedAt: true,
+      redeemedBy: true,
+      redeemedLocation: true,
+      expiresAt: true,
     }
   });
+
+  // Serialize dates to avoid hydration issues
+  const purchases = purchasesRaw.map(p => ({
+    ...p,
+    createdAt: p.createdAt.toISOString(),
+    redeemedAt: p.redeemedAt?.toISOString() || null,
+    expiresAt: p.expiresAt?.toISOString() || null,
+  }));
 
   return (
     <div className="min-h-screen dark-pattern pb-24 lg:pb-8">

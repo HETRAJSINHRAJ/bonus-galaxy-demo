@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
+import { generateUniquePIN, generateQRData, calculateExpirationDate } from '@/lib/voucher-utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,14 +44,30 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create voucher purchase record
-    await prisma.voucherPurchase.create({
+    // Generate PIN and QR code for the voucher
+    const pinCode = await generateUniquePIN(prisma);
+    const purchaseId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const qrCodeData = generateQRData(purchaseId, userId, pinCode);
+    const expiresAt = calculateExpirationDate();
+
+    // Create voucher purchase record with redemption codes
+    const purchase = await prisma.voucherPurchase.create({
       data: {
         userId,
         voucherId,
         status: 'completed',
         amount: 0, // Paid with points
+        pinCode,
+        qrCodeData: qrCodeData.replace(purchaseId, ''), // Placeholder, will update
+        expiresAt,
       },
+    });
+
+    // Update QR code with actual purchase ID
+    const finalQRData = generateQRData(purchase.id, userId, pinCode);
+    await prisma.voucherPurchase.update({
+      where: { id: purchase.id },
+      data: { qrCodeData: finalQRData }
     });
 
     return NextResponse.json({ 
