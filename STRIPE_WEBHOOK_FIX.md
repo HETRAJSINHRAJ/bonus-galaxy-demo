@@ -111,112 +111,20 @@ This will find all Stripe purchases without vouchers and create them.
 
 ---
 
-## ✅ Solution 3: Automatic Recovery (Best for Production)
+## ✅ Solution 3: Manual Recovery Script
 
-Add a cron job to automatically recover missing vouchers:
+If webhook doesn't work, use the recovery script manually:
 
-### Step 1: Create Vercel Cron Job
-
-Create `vercel.json`:
-```json
-{
-  "crons": [
-    {
-      "path": "/api/cron/recover-vouchers",
-      "schedule": "0 * * * *"
-    }
-  ]
-}
+```bash
+npx tsx scripts/recover-stripe-purchases.ts
 ```
 
-### Step 2: Create Cron API Route
+This will find all Stripe purchases without vouchers and create them with PIN/QR codes.
 
-Create `app/api/cron/recover-vouchers/route.ts`:
-```typescript
-import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-import prisma from '@/lib/prisma';
-import { generateUniquePIN, generateQRData, calculateExpirationDate } from '@/lib/voucher-utils';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-10-29.clover',
-});
-
-export async function GET(request: Request) {
-  // Verify cron secret
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  try {
-    // Get recent completed sessions (last 24 hours)
-    const oneDayAgo = Math.floor(Date.now() / 1000) - 86400;
-    const sessions = await stripe.checkout.sessions.list({
-      limit: 100,
-      created: { gte: oneDayAgo },
-    });
-
-    let recovered = 0;
-
-    for (const session of sessions.data) {
-      if (session.status !== 'complete') continue;
-      
-      const userId = session.metadata?.userId;
-      const bundleId = session.metadata?.bundleId;
-      
-      if (!userId || !bundleId) continue;
-
-      // Check if voucher exists
-      const existing = await prisma.voucherPurchase.findFirst({
-        where: { stripeSessionId: session.id },
-      });
-
-      if (existing) continue;
-
-      // Create missing voucher
-      const pinCode = await generateUniquePIN(prisma);
-      const tempId = `temp_${Date.now()}`;
-      const qrCodeData = generateQRData(tempId, userId, pinCode);
-      const expiresAt = calculateExpirationDate(new Date(session.created * 1000));
-
-      const purchase = await prisma.voucherPurchase.create({
-        data: {
-          userId,
-          voucherId: bundleId,
-          stripeSessionId: session.id,
-          status: 'completed',
-          amount: (session.amount_total || 0) / 100,
-          pinCode,
-          qrCodeData: qrCodeData.replace(tempId, ''),
-          expiresAt,
-          createdAt: new Date(session.created * 1000),
-        },
-      });
-
-      // Update QR code
-      const finalQR = generateQRData(purchase.id, userId, pinCode);
-      await prisma.voucherPurchase.update({
-        where: { id: purchase.id },
-        data: { qrCodeData: finalQR }
-      });
-
-      recovered++;
-    }
-
-    return NextResponse.json({ 
-      success: true, 
-      recovered,
-      message: `Recovered ${recovered} missing vouchers`
-    });
-  } catch (error) {
-    console.error('Cron error:', error);
-    return NextResponse.json({ error: 'Failed' }, { status: 500 });
-  }
-}
-```
-
-This will automatically check for missing vouchers every hour!
+**When to run:**
+- After each Stripe purchase (if webhook isn't working)
+- Once a day to catch any missed purchases
+- Before giving access to customers
 
 ---
 
