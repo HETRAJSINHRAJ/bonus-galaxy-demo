@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/recover-vouchers",
+      "schedule": "0 * * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/missions-external",
