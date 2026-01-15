@@ -1,21 +1,11 @@
+'use client';
+
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Navigation } from '@/components/navigation';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, ArrowRight, ShoppingBag, Mail, Gift, Coins, Sparkles, Star } from 'lucide-react';
+import { CheckCircle2, ArrowRight, ShoppingBag, Mail, Gift, Coins, Sparkles, Star, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import Stripe from 'stripe';
-import prisma from '@/lib/prisma';
-import { generateUniquePIN, generateQRData, calculateExpirationDate } from '@/lib/voucher-utils';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-10-29.clover',
-});
-
-const BUNDLE_BONUS_POINTS: Record<string, number> = {
-  'bundle-standard': 0,
-  'bundle-premium': 5000,
-  'bundle-deluxe': 10000,
-};
 
 const nextSteps = [
   {
@@ -32,89 +22,64 @@ const nextSteps = [
   },
 ];
 
-export default async function SuccessPage({
-  searchParams,
-}: {
-  searchParams: { session_id?: string };
-}) {
-  const sessionId = searchParams.session_id;
+function SuccessContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const sessionId = searchParams.get('session_id');
+  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!sessionId) {
-    redirect('/shop');
-  }
+  useEffect(() => {
+    if (!sessionId) {
+      router.push('/shop');
+      return;
+    }
 
-  try {
-    // Retrieve the session from Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-
-    if (session.payment_status === 'paid') {
-      const userId = session.metadata?.userId;
-      const bundleId = session.metadata?.bundleId;
-
-      if (userId && bundleId) {
-        // Check if voucher already exists
-        const existingVoucher = await prisma.voucherPurchase.findFirst({
-          where: { stripeSessionId: sessionId },
+    // Complete the purchase
+    const completePurchase = async () => {
+      try {
+        console.log('🎫 Completing purchase for session:', sessionId);
+        
+        const response = await fetch('/api/stripe/complete-purchase', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ sessionId }),
         });
 
-        if (!existingVoucher) {
-          console.log('🎫 Creating voucher for session:', sessionId);
+        const data = await response.json();
 
-          // Generate PIN and QR code
-          const pinCode = await generateUniquePIN(prisma);
-          const purchaseId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-          const qrCodeData = generateQRData(purchaseId, userId, pinCode);
-          const expiresAt = calculateExpirationDate();
-
-          // Create voucher purchase
-          const purchase = await prisma.voucherPurchase.create({
-            data: {
-              userId,
-              voucherId: bundleId,
-              stripeSessionId: sessionId,
-              status: 'completed',
-              amount: (session.amount_total || 0) / 100,
-              pinCode,
-              qrCodeData: qrCodeData.replace(purchaseId, ''),
-              expiresAt,
-            },
-          });
-
-          // Update QR code with actual purchase ID
-          const finalQRData = generateQRData(purchase.id, userId, pinCode);
-          await prisma.voucherPurchase.update({
-            where: { id: purchase.id },
-            data: { qrCodeData: finalQRData }
-          });
-
-          // Award bonus points if applicable
-          const bonusPoints = BUNDLE_BONUS_POINTS[bundleId] || 0;
-          if (bonusPoints > 0) {
-            await prisma.pointsTransaction.create({
-              data: {
-                userId,
-                amount: bonusPoints,
-                type: 'earn',
-                description: `Bonuspunkte für ${bundleId} Kauf`,
-              },
-            });
-          }
-
-          console.log('✅ Voucher created successfully with PIN:', pinCode);
-        } else {
-          console.log('ℹ️ Voucher already exists for session:', sessionId);
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to complete purchase');
         }
+
+        console.log('✅ Purchase completed:', data);
+        setLoading(false);
+      } catch (err) {
+        console.error('❌ Error:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setLoading(false);
       }
-    }
-  } catch (error) {
-    console.error('Error processing payment:', error);
-    // Don't fail the page, just log the error
+    };
+
+    completePurchase();
+  }, [sessionId, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen dark-pattern pb-24 lg:pb-8 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 text-indigo-400 animate-spin mx-auto mb-4" />
+          <p className="text-white/70">Verarbeite deine Bestellung...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen dark-pattern pb-24 lg:pb-8">
-      <Navigation />
-      
       {/* Floating decorative elements */}
       <div className="fixed top-20 right-10 w-32 h-32 rounded-full bg-emerald-400/10 blur-3xl animate-float hidden lg:block" />
       <div className="fixed bottom-20 left-10 w-24 h-24 rounded-full bg-indigo-400/10 blur-3xl animate-float-slow hidden lg:block" />
@@ -152,6 +117,11 @@ export default async function SuccessPage({
                 <p className="text-white/70 text-lg">
                   Vielen Dank für deinen Kauf. Deine Gutscheine wurden erfolgreich freigeschaltet.
                 </p>
+                {error && (
+                  <p className="text-amber-400 text-sm">
+                    Hinweis: {error}. Deine Gutscheine werden in Kürze verfügbar sein.
+                  </p>
+                )}
               </div>
 
               {/* Next Steps */}
@@ -201,5 +171,23 @@ export default async function SuccessPage({
         </div>
       </main>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <>
+      <Navigation />
+      <Suspense fallback={
+        <div className="min-h-screen dark-pattern pb-24 lg:pb-8 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 text-indigo-400 animate-spin mx-auto mb-4" />
+            <p className="text-white/70">Lade...</p>
+          </div>
+        </div>
+      }>
+        <SuccessContent />
+      </Suspense>
+    </>
   );
 }
