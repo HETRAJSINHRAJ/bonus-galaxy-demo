@@ -2,26 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { decryptQRData, isVoucherExpired, getBundleInfo } from '@/lib/voucher-utils';
 
-// CORS headers for cross-origin requests
-const corsHeaders = {
-  'Access-Control-Allow-Origin': process.env.NODE_ENV === 'production'
-    ? 'https://bonus-galaxy-cms.vercel.app'
-    : '*', // Allow mission-cms in production, all origins in development
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-/**
- * OPTIONS /api/vouchers/validate
- * Handle preflight CORS requests
- */
-export async function OPTIONS(req: NextRequest) {
-  return NextResponse.json({}, { headers: corsHeaders });
-}
-
 /**
  * POST /api/vouchers/validate
  * Validate a voucher using PIN or QR code
+ * CORS is handled by middleware (proxy.ts)
  */
 export async function POST(req: NextRequest) {
   try {
@@ -31,14 +15,14 @@ export async function POST(req: NextRequest) {
     if (!method || !code) {
       return NextResponse.json(
         { valid: false, error: 'Missing required fields: method and code' },
-        { status: 400, headers: corsHeaders }
+        { status: 400 }
       );
     }
     
     if (method !== 'pin' && method !== 'qr') {
       return NextResponse.json(
         { valid: false, error: 'Invalid method. Must be "pin" or "qr"' },
-        { status: 400, headers: corsHeaders }
+        { status: 400 }
       );
     }
     
@@ -60,13 +44,13 @@ export async function POST(req: NextRequest) {
         if (purchase && purchase.pinCode !== decrypted.pinCode) {
           return NextResponse.json(
             { valid: false, error: 'QR code validation failed' },
-            { status: 400, headers: corsHeaders }
+            { status: 400 }
           );
         }
       } catch (error) {
         return NextResponse.json(
           { valid: false, error: 'Invalid or corrupted QR code' },
-          { status: 400, headers: corsHeaders }
+          { status: 400 }
         );
       }
     }
@@ -75,7 +59,7 @@ export async function POST(req: NextRequest) {
     if (!purchase) {
       return NextResponse.json(
         { valid: false, error: 'Voucher not found' },
-        { status: 404, headers: corsHeaders }
+        { status: 404 }
       );
     }
     
@@ -83,7 +67,7 @@ export async function POST(req: NextRequest) {
     if (purchase.status !== 'completed') {
       return NextResponse.json(
         { valid: false, error: `Voucher status is ${purchase.status}` },
-        { status: 400, headers: corsHeaders }
+        { status: 400 }
       );
     }
     
@@ -99,7 +83,7 @@ export async function POST(req: NextRequest) {
             redeemedLocation: purchase.redeemedLocation
           }
         },
-        { status: 400, headers: corsHeaders }
+        { status: 400 }
       );
     }
     
@@ -111,7 +95,7 @@ export async function POST(req: NextRequest) {
           error: 'Voucher has expired',
           expiresAt: purchase.expiresAt
         },
-        { status: 400, headers: corsHeaders }
+        { status: 400 }
       );
     }
     
@@ -130,13 +114,13 @@ export async function POST(req: NextRequest) {
         purchaseDate: purchase.createdAt,
         expiresAt: purchase.expiresAt
       }
-    }, { headers: corsHeaders });
+    });
     
   } catch (error) {
     console.error('Voucher validation error:', error);
     return NextResponse.json(
       { valid: false, error: 'Validation failed. Please try again.' },
-      { status: 500, headers: corsHeaders }
+      { status: 500 }
     );
   }
 }
