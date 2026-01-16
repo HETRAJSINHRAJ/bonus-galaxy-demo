@@ -1,0 +1,252 @@
+// NEW SHOP VOUCHER SYSTEM SCHEMA
+// Add these models to your existing schema.prisma
+
+// ============================================
+// SHOP MANAGEMENT SYSTEM
+// ============================================
+
+model Shop {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?  @db.Text
+  address         String?
+  latitude        Float?
+  longitude       Float?
+  logo            String?  // URL to logo image
+  
+  // Contact Info
+  email           String?
+  phone           String?
+  website         String?
+  
+  // Wallet & Points
+  nequadaBalance  Int      @default(0) // Shop's accumulated points
+  
+  // Stats
+  totalVouchersSold     Int @default(0)
+  totalVouchersRedeemed Int @default(0)
+  
+  // Relationships
+  employees       Employee[]
+  voucherOffers   VoucherOffer[]
+  
+  // Metadata
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([isActive])
+  @@index([name])
+}
+
+model Employee {
+  id              String   @id @default(cuid())
+  shopId          String
+  shop            Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  
+  // User Info
+  userId          String   // Links to Clerk user
+  name            String
+  email           String
+  phone           String?
+  
+  // Security
+  redemptionPinHash String // Hashed 4-6 digit PIN for redemption
+  
+  // Permissions
+  canCreateVoucher  Boolean @default(false)
+  canRedeemVoucher  Boolean @default(true)
+  canViewAnalytics  Boolean @default(false)
+  isManager         Boolean @default(false)
+  
+  // Stats
+  totalRedemptions  Int     @default(0)
+  totalOffersCreated Int    @default(0)
+  
+  // Relationships
+  createdOffers     VoucherOffer[]  @relation("CreatedBy")
+  redemptions       UserVoucher[]   @relation("RedeemedBy")
+  
+  // Metadata
+  isActive        Boolean  @default(true)
+  lastActiveAt    DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([shopId, userId])
+  @@index([shopId])
+  @@index([userId])
+  @@index([email])
+}
+
+model VoucherOffer {
+  id              String   @id @default(cuid())
+  shopId          String
+  shop            Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  
+  createdByEmpId  String
+  createdBy       Employee @relation("CreatedBy", fields: [createdByEmpId], references: [id])
+  
+  // Offer Details
+  title           String
+  description     String   @db.Text
+  termsOfService  String?  @db.Text
+  imageUrl        String?
+  
+  // Pricing
+  priceInPoints   Int      // Cost in Nequada points
+  originalPrice   Float?   // Original cash price (for display)
+  discountPercent Int?     // Discount percentage (for display)
+  
+  // Limits
+  quota           Int?     // Optional: Max number of sales
+  soldCount       Int      @default(0)
+  redeemedCount   Int      @default(0)
+  
+  // Validity
+  validFrom       DateTime @default(now())
+  validUntil      DateTime?
+  
+  // Display
+  category        String?  // "food", "drink", "service", etc.
+  tags            String[]
+  isFeatured      Boolean  @default(false)
+  displayOrder    Int      @default(0)
+  
+  // Relationships
+  userVouchers    UserVoucher[]
+  
+  // Metadata
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([shopId])
+  @@index([isActive])
+  @@index([validFrom, validUntil])
+  @@index([category])
+  @@index([isFeatured, displayOrder])
+}
+
+model UserVoucher {
+  id              String   @id @default(cuid())
+  
+  // Ownership
+  userId          String   // Clerk User ID
+  offerId         String
+  offer           VoucherOffer @relation(fields: [offerId], references: [id])
+  
+  // Status
+  status          String   @default("purchased") // purchased, redeemed, expired, cancelled
+  
+  // Purchase Info
+  purchasedAt     DateTime @default(now())
+  pricePaid       Int      // Points paid at purchase
+  
+  // Redemption Info
+  redeemedByEmpId String?
+  redeemedBy      Employee? @relation("RedeemedBy", fields: [redeemedByEmpId], references: [id])
+  redeemedAt      DateTime?
+  redemptionNotes String?  // Optional notes from employee
+  
+  // QR/PIN Codes
+  pinCode         String   @unique // 4-digit PIN
+  qrCodeData      String?  @unique // Encrypted QR data
+  
+  // Metadata
+  expiresAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([offerId])
+  @@index([status])
+  @@index([pinCode])
+  @@index([redeemedByEmpId])
+  @@index([purchasedAt])
+  @@index([redeemedAt])
+}
+
+// ============================================
+// ANALYTICS & AUDIT TRAIL
+// ============================================
+
+model ShopAnalytics {
+  id              String   @id @default(cuid())
+  shopId          String
+  date            DateTime @default(now())
+  
+  // Sales metrics
+  vouchersSold    Int      @default(0)
+  vouchersRedeemed Int     @default(0)
+  revenue         Int      @default(0) // Points earned
+  
+  // Performance
+  redemptionRate  Float?   // Percentage
+  avgRedemptionTime Float? // Hours from purchase to redemption
+  
+  // Top performers
+  topOfferId      String?
+  topEmployeeId   String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([shopId, date])
+  @@index([shopId])
+  @@index([date])
+}
+
+model RedemptionLog {
+  id              String   @id @default(cuid())
+  
+  // What
+  voucherId       String
+  offerId         String
+  
+  // Who
+  userId          String   // Customer
+  employeeId      String   // Employee who redeemed
+  shopId          String
+  
+  // When & Where
+  redeemedAt      DateTime @default(now())
+  
+  // How
+  method          String   // "pin" or "qr"
+  pinAttempts     Int      @default(1)
+  
+  // Result
+  success         Boolean
+  failureReason   String?
+  
+  // Metadata
+  ipAddress       String?
+  userAgent       String?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([shopId, redeemedAt])
+  @@index([employeeId])
+  @@index([userId])
+  @@index([success])
+}
+
+model EmployeePinAttempt {
+  id              String   @id @default(cuid())
+  employeeId      String
+  
+  // Attempt details
+  success         Boolean
+  attemptedAt     DateTime @default(now())
+  ipAddress       String?
+  
+  // Security
+  isLocked        Boolean  @default(false)
+  lockUntil       DateTime?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([employeeId, attemptedAt])
+  @@index([isLocked])
+}
