@@ -4,7 +4,9 @@ import { isValidPartnerLocation } from '@/lib/voucher-utils';
 
 // CORS headers for cross-origin requests
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': process.env.NODE_ENV === 'production'
+    ? 'https://bonus-galaxy-cms.vercel.app'
+    : '*', // Allow mission-cms in production, all origins in development
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
