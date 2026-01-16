@@ -2,6 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { isValidPartnerLocation } from '@/lib/voucher-utils';
 
+// CORS headers for cross-origin requests
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+/**
+ * OPTIONS /api/vouchers/redeem
+ * Handle preflight CORS requests
+ */
+export async function OPTIONS(req: NextRequest) {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 /**
  * POST /api/vouchers/redeem
  * Redeem a voucher after validation
@@ -14,7 +29,7 @@ export async function POST(req: NextRequest) {
     if (!purchaseId || !employeeId || !partnerLocation || !method) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
     
@@ -22,7 +37,7 @@ export async function POST(req: NextRequest) {
     if (!isValidPartnerLocation(partnerLocation)) {
       return NextResponse.json(
         { success: false, error: 'Invalid partner location' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
     
@@ -34,7 +49,7 @@ export async function POST(req: NextRequest) {
     if (!existingPurchase) {
       return NextResponse.json(
         { success: false, error: 'Voucher not found' },
-        { status: 404 }
+        { status: 404, headers: corsHeaders }
       );
     }
     
@@ -50,7 +65,7 @@ export async function POST(req: NextRequest) {
             redeemedLocation: existingPurchase.redeemedLocation
           }
         },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
     
@@ -75,13 +90,13 @@ export async function POST(req: NextRequest) {
         redeemedBy: purchase.redeemedBy,
         redeemedLocation: purchase.redeemedLocation
       }
-    });
+    }, { headers: corsHeaders });
     
   } catch (error) {
     console.error('Voucher redemption error:', error);
     return NextResponse.json(
       { success: false, error: 'Redemption failed. Please try again.' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
