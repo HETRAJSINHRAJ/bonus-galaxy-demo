@@ -126,6 +126,11 @@ export async function POST(req: NextRequest) {
             shop: true,
           },
         },
+        redeemedBy: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
 

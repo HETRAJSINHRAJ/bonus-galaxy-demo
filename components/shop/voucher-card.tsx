@@ -14,10 +14,10 @@ interface Bundle {
   price: number;
   value: number;
   features: string[];
-  popular?: boolean;
+  isPopular?: boolean; // Changed from 'popular' to match database schema
   pointsCost?: number;
   voucherCount?: number;
-  paymentMethod?: 'cash' | 'points'; // Determines which payment option is available
+  paymentMethod?: 'cash' | 'points' | 'both'; // Determines which payment option is available
 }
 
 interface VoucherCardProps {
@@ -169,12 +169,12 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
 
       <div 
         className={`relative p-4 flex flex-col rounded-xl bg-white/5 backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${
-          bundle.popular 
+          bundle.isPopular 
             ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/20' 
             : 'border-white/10 hover:border-white/20'
         }`}
       >
-      {bundle.popular && (
+      {bundle.isPopular && (
         <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 btn-gradient text-white border-0 px-3 py-0.5 text-xs">
           <Sparkles className="h-3 w-3 mr-1" />
           Beliebteste Wahl
@@ -219,10 +219,10 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
 
       {/* Payment Options - Only show the allowed payment method */}
       <div className="space-y-2 mt-4">
-        {/* Show Stripe Payment ONLY if paymentMethod is 'cash' or not specified */}
-        {(!bundle.paymentMethod || bundle.paymentMethod === 'cash') && (
+        {/* Show Stripe Payment ONLY if paymentMethod is 'cash' or 'both' or not specified */}
+        {(!bundle.paymentMethod || bundle.paymentMethod === 'cash' || bundle.paymentMethod === 'both') && (
           <Button
-            className={`w-full ${bundle.popular ? 'btn-gradient' : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'}`}
+            className={`w-full ${bundle.isPopular ? 'btn-gradient' : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'}`}
             size="default"
             onClick={handleStripePurchase}
             disabled={loading || loadingPoints}
@@ -241,8 +241,8 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
           </Button>
         )}
 
-        {/* Show Points Payment ONLY if paymentMethod is 'points' */}
-        {bundle.paymentMethod === 'points' && bundle.pointsCost && (
+        {/* Show Points Payment ONLY if paymentMethod is 'points' or 'both' */}
+        {(bundle.paymentMethod === 'points' || bundle.paymentMethod === 'both') && bundle.pointsCost && (
           <>
             <Button
               className="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30"

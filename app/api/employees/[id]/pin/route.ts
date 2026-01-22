@@ -9,7 +9,7 @@ import { hashPin, verifyPin, isValidPin } from '@/lib/pin-utils';
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -21,6 +21,7 @@ export async function PUT(
       );
     }
 
+    const { id } = await params;
     const body = await req.json();
     const { currentPin, newPin } = body;
 
@@ -42,7 +43,7 @@ export async function PUT(
 
     // Get employee
     const employee = await prisma.employee.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!employee) {
@@ -76,7 +77,7 @@ export async function PUT(
 
     // Update PIN
     await prisma.employee.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         redemptionPinHash: newPinHash,
         updatedAt: new Date(),

@@ -8,7 +8,7 @@ import prisma from '@/lib/prisma';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -20,11 +20,13 @@ export async function GET(
       );
     }
 
+    const { id } = await params;
+
     // Check if user has access to this shop's analytics
     const employee = await prisma.employee.findFirst({
       where: {
         userId,
-        shopId: params.id,
+        shopId: id,
         isActive: true,
         OR: [
           { canViewAnalytics: true },
@@ -50,7 +52,7 @@ export async function GET(
 
     // Get shop details
     const shop = await prisma.shop.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!shop) {
@@ -63,14 +65,14 @@ export async function GET(
     // Get vouchers sold and redeemed in period
     const vouchersSold = await prisma.userVoucher.count({
       where: {
-        offer: { shopId: params.id },
+        offer: { shopId: id },
         purchasedAt: { gte: startDate },
       },
     });
 
     const vouchersRedeemed = await prisma.userVoucher.count({
       where: {
-        offer: { shopId: params.id },
+        offer: { shopId: id },
         status: 'redeemed',
         redeemedAt: { gte: startDate },
       },
@@ -78,13 +80,13 @@ export async function GET(
 
     // Calculate redemption rate
     const redemptionRate = vouchersSold > 0 
-      ? ((vouchersRedeemed / vouchersSold) * 100).toFixed(2)
+      ? parseFloat(((vouchersRedeemed / vouchersSold) * 100).toFixed(2))
       : 0;
 
     // Get revenue (points earned from redemptions)
     const revenueData = await prisma.userVoucher.aggregate({
       where: {
-        offer: { shopId: params.id },
+        offer: { shopId: id },
         status: 'redeemed',
         redeemedAt: { gte: startDate },
       },
@@ -98,7 +100,7 @@ export async function GET(
     // Get top offers
     const topOffers = await prisma.voucherOffer.findMany({
       where: {
-        shopId: params.id,
+        shopId: id,
         userVouchers: {
           some: {
             status: 'redeemed',
@@ -122,7 +124,7 @@ export async function GET(
     // Get employee activity
     const employeeActivity = await prisma.employee.findMany({
       where: {
-        shopId: params.id,
+        shopId: id,
         isActive: true,
         redemptions: {
           some: {
@@ -157,7 +159,7 @@ export async function GET(
         COUNT(*)::int as count
       FROM "UserVoucher"
       WHERE offer_id IN (
-        SELECT id FROM "VoucherOffer" WHERE shop_id = ${params.id}
+        SELECT id FROM "VoucherOffer" WHERE shop_id = ${id}
       )
       AND status = 'redeemed'
       AND redeemed_at >= ${startDate}
@@ -171,7 +173,7 @@ export async function GET(
         AVG(EXTRACT(EPOCH FROM (redeemed_at - purchased_at)) / 3600)::float as avg_hours
       FROM "UserVoucher"
       WHERE offer_id IN (
-        SELECT id FROM "VoucherOffer" WHERE shop_id = ${params.id}
+        SELECT id FROM "VoucherOffer" WHERE shop_id = ${id}
       )
       AND status = 'redeemed'
       AND redeemed_at >= ${startDate}
@@ -193,7 +195,7 @@ export async function GET(
       metrics: {
         vouchersSold,
         vouchersRedeemed,
-        redemptionRate: parseFloat(redemptionRate),
+        redemptionRate,
         revenue,
         avgRedemptionTime: avgRedemptionTime[0]?.avg_hours?.toFixed(2) || 0,
       },

@@ -22,14 +22,19 @@ export async function GET(req: NextRequest) {
         ...(featured && { isFeatured: true }),
         // Check validity dates
         validFrom: { lte: now },
-        OR: [
-          { validUntil: null },
-          { validUntil: { gte: now } },
-        ],
-        // Check quota
-        OR: [
-          { quota: null },
-          { soldCount: { lt: prisma.voucherOffer.fields.quota } },
+        AND: [
+          {
+            OR: [
+              { validUntil: null },
+              { validUntil: { gte: now } },
+            ],
+          },
+          {
+            OR: [
+              { quota: null },
+              { soldCount: { lt: prisma.voucherOffer.fields.quota } },
+            ],
+          },
         ],
       },
       include: {

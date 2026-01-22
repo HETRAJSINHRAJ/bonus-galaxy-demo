@@ -8,7 +8,7 @@ import prisma from '@/lib/prisma';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -20,9 +20,11 @@ export async function GET(
       );
     }
 
+    const { id } = await params;
+
     // Get employee
     const employee = await prisma.employee.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         shop: true,
       },
@@ -64,7 +66,7 @@ export async function GET(
     // Get redemptions in period
     const redemptions = await prisma.userVoucher.findMany({
       where: {
-        redeemedByEmpId: params.id,
+        redeemedByEmpId: id,
         redeemedAt: { gte: startDate },
       },
       include: {
@@ -91,7 +93,7 @@ export async function GET(
         DATE(redeemed_at) as date,
         COUNT(*)::int as count
       FROM "UserVoucher"
-      WHERE redeemed_by_emp_id = ${params.id}
+      WHERE redeemed_by_emp_id = ${id}
       AND redeemed_at >= ${startDate}
       GROUP BY DATE(redeemed_at)
       ORDER BY date ASC
@@ -99,7 +101,7 @@ export async function GET(
 
     // Calculate average redemptions per day
     const avgPerDay = periodDays > 0 
-      ? (redemptionCount / periodDays).toFixed(2)
+      ? parseFloat((redemptionCount / periodDays).toFixed(2))
       : 0;
 
     // Get most redeemed offers
@@ -134,7 +136,7 @@ export async function GET(
       },
     });
 
-    const rank = shopEmployees.findIndex(e => e.id === params.id) + 1;
+    const rank = shopEmployees.findIndex(e => e.id === id) + 1;
 
     return NextResponse.json({
       employee: {
@@ -152,7 +154,7 @@ export async function GET(
       metrics: {
         redemptionCount,
         totalValue,
-        avgPerDay: parseFloat(avgPerDay),
+        avgPerDay,
         rank,
         totalEmployees: shopEmployees.length,
       },

@@ -5,58 +5,6 @@ import { VoucherCard } from '@/components/shop/voucher-card';
 import { Sparkles, ShoppingBag, CreditCard, Gift, Zap, Shield, Check } from 'lucide-react';
 import prisma from '@/lib/prisma';
 
-const voucherBundles = [
-  {
-    id: 'bundle-standard',
-    name: 'Standard Bundle',
-    description: '10 Gutscheine im Gesamtwert von €400 von gutschein.at',
-    price: 40,
-    value: 400,
-    pointsCost: 4000,
-    voucherCount: 10,
-    paymentMethod: 'cash' as const, // Only buyable with cash
-    features: [
-      '10 Gutscheine von Top-Partnern',
-      'Sofortige digitale Zustellung',
-      'Bis zu 30% Rabatt',
-      'Unbegrenzt gültig',
-    ],
-  },
-  {
-    id: 'bundle-premium',
-    name: 'Premium Bundle',
-    description: '10 Exklusive Gutscheine im Wert von €800 inkl. Bonuspunkte',
-    price: 75,
-    value: 800,
-    pointsCost: 7500,
-    voucherCount: 10,
-    paymentMethod: 'points' as const, // Only buyable with points
-    features: [
-      'Alle Standard-Vorteile',
-      '+ 5000 Bonuspunkte',
-      'Exklusive Partner-Angebote',
-      'Priority Support',
-    ],
-    popular: true,
-  },
-  {
-    id: 'bundle-deluxe',
-    name: 'Deluxe Bundle',
-    description: '10 Premium Gutscheine im Wert von €1200 mit Extra-Rewards',
-    price: 100,
-    value: 1200,
-    pointsCost: 10000,
-    voucherCount: 10,
-    paymentMethod: 'cash' as const, // Only buyable with cash
-    features: [
-      'Alle Premium-Vorteile',
-      '+ 10000 Bonuspunkte',
-      'Zugang zu VIP-Angeboten',
-      'Persönlicher Account-Manager',
-    ],
-  },
-];
-
 const steps = [
   {
     icon: ShoppingBag,
@@ -95,6 +43,35 @@ export default async function ShopPage() {
   const userPoints = pointsTransactions.reduce((sum, t) => {
     return sum + t.amount; // Simply add all amounts (negative amounts will subtract)
   }, 0);
+
+  // Fetch voucher bundles from database
+  const voucherBundlesRaw = await prisma.voucherBundle.findMany({
+    where: {
+      isActive: true,
+    },
+    orderBy: {
+      displayOrder: 'asc',
+    },
+  });
+
+  // Reorder bundles to put popular one in the middle and type cast paymentMethod
+  const voucherBundles = (() => {
+    const popularIndex = voucherBundlesRaw.findIndex(b => b.isPopular);
+    let bundles = [...voucherBundlesRaw];
+    
+    if (popularIndex !== -1 && bundles.length === 3) {
+      // Rearrange to put popular bundle in the middle (index 1)
+      const popularBundle = bundles[popularIndex];
+      bundles.splice(popularIndex, 1); // Remove from current position
+      bundles.splice(1, 0, popularBundle); // Insert at middle position
+    }
+    
+    // Type cast paymentMethod to the expected union type
+    return bundles.map(bundle => ({
+      ...bundle,
+      paymentMethod: bundle.paymentMethod as 'cash' | 'points' | 'both'
+    }));
+  })();
 
   return (
     <div className="min-h-screen dark-pattern pb-24 lg:pb-8">

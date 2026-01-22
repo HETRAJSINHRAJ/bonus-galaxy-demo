@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
         const decrypted = decryptQRData(code);
         voucher = await prisma.userVoucher.findFirst({
           where: {
-            id: decrypted.voucherId,
+            id: decrypted.purchaseId,
             pinCode: decrypted.pinCode,
           },
           include: {
@@ -108,25 +108,10 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // Check if voucher is purchased
+    // Check if voucher is purchased (not already redeemed, expired, or cancelled)
     if (voucher.status !== 'purchased') {
       return NextResponse.json(
         { valid: false, error: `Voucher status is ${voucher.status}` },
-        { status: 400 }
-      );
-    }
-    
-    // Check if already redeemed
-    if (voucher.status === 'redeemed') {
-      return NextResponse.json(
-        {
-          valid: false,
-          error: 'Voucher already redeemed',
-          redemptionDetails: {
-            redeemedAt: voucher.redeemedAt,
-            redeemedBy: voucher.redeemedBy?.name,
-          }
-        },
         { status: 400 }
       );
     }

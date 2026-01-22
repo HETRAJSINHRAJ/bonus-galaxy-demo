@@ -8,15 +8,16 @@ import prisma from '@/lib/prisma';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { searchParams } = new URL(req.url);
     const includeInactive = searchParams.get('includeInactive') === 'true';
 
     const offers = await prisma.voucherOffer.findMany({
       where: {
-        shopId: params.id,
+        shopId: id,
         ...(includeInactive ? {} : { isActive: true }),
       },
       include: {
@@ -55,7 +56,7 @@ export async function GET(
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -67,11 +68,13 @@ export async function POST(
       );
     }
 
+    const { id } = await params;
+
     // Check if user is an employee with create permission
     const employee = await prisma.employee.findFirst({
       where: {
         userId,
-        shopId: params.id,
+        shopId: id,
         isActive: true,
         canCreateVoucher: true,
       },
@@ -120,7 +123,7 @@ export async function POST(
     // Create offer
     const offer = await prisma.voucherOffer.create({
       data: {
-        shopId: params.id,
+        shopId: id,
         createdByEmpId: employee.id,
         title,
         description,

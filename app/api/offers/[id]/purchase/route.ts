@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
 import { generateRandomPin } from '@/lib/pin-utils';
-import { encryptQRData } from '@/lib/voucher-utils';
+import { generateQRData } from '@/lib/voucher-utils';
 
 /**
  * POST /api/offers/:id/purchase
@@ -10,7 +10,7 @@ import { encryptQRData } from '@/lib/voucher-utils';
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -22,6 +22,7 @@ export async function POST(
       );
     }
 
+    const { id } = await params;
     const body = await req.json();
     const { quantity = 1 } = body;
 
@@ -35,7 +36,7 @@ export async function POST(
 
     // Get offer details
     const offer = await prisma.voucherOffer.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         shop: true,
       },
@@ -111,12 +112,11 @@ export async function POST(
         }
 
         // Generate QR code data
-        const qrCodeData = encryptQRData({
-          voucherId: `temp_${Date.now()}_${i}`, // Will be updated after creation
-          pinCode,
-          offerId: offer.id,
-          shopId: offer.shopId,
-        });
+        const qrCodeData = generateQRData(
+          `temp_${Date.now()}_${i}`, // Will be updated after creation
+          userId,
+          pinCode
+        );
 
         // Calculate expiry (1 year from now)
         const expiresAt = new Date();

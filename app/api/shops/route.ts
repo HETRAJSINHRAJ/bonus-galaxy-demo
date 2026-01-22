@@ -11,6 +11,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const includeInactive = searchParams.get('includeInactive') === 'true';
 
+    console.log('Fetching shops, includeInactive:', includeInactive);
+
     const shops = await prisma.shop.findMany({
       where: includeInactive ? {} : { isActive: true },
       include: {
@@ -26,11 +28,13 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    console.log('Shops fetched successfully:', shops.length);
     return NextResponse.json({ shops });
   } catch (error) {
     console.error('Error fetching shops:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to fetch shops' },
+      { error: 'Failed to fetch shops', details: errorMessage },
       { status: 500 }
     );
   }

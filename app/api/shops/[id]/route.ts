@@ -8,11 +8,12 @@ import prisma from '@/lib/prisma';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const shop = await prisma.shop.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         employees: {
           where: { isActive: true },
@@ -61,7 +62,7 @@ export async function GET(
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -73,9 +74,11 @@ export async function PUT(
       );
     }
 
+    const { id } = await params;
+
     // TODO: Check if user is admin or shop manager
     // const employee = await prisma.employee.findFirst({
-    //   where: { userId, shopId: params.id, isManager: true }
+    //   where: { userId, shopId: id, isManager: true }
     // });
     // if (!employee && !isAdmin) {
     //   return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -96,7 +99,7 @@ export async function PUT(
     } = body;
 
     const shop = await prisma.shop.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(name && { name }),
         ...(description !== undefined && { description }),
@@ -127,7 +130,7 @@ export async function PUT(
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -139,10 +142,12 @@ export async function DELETE(
       );
     }
 
+    const { id } = await params;
+
     // TODO: Add admin role check
 
     const shop = await prisma.shop.update({
-      where: { id: params.id },
+      where: { id },
       data: { isActive: false },
     });
 

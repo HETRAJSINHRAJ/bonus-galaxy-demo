@@ -9,7 +9,7 @@ import { hashPin, isValidPin } from '@/lib/pin-utils';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -21,9 +21,11 @@ export async function GET(
       );
     }
 
+    const { id } = await params;
+
     const employees = await prisma.employee.findMany({
       where: {
-        shopId: params.id,
+        shopId: id,
         isActive: true,
       },
       select: {
@@ -62,7 +64,7 @@ export async function GET(
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId: authUserId } = await auth();
@@ -74,9 +76,11 @@ export async function POST(
       );
     }
 
+    const { id } = await params;
+
     // TODO: Check if user is admin or shop manager
     // const manager = await prisma.employee.findFirst({
-    //   where: { userId: authUserId, shopId: params.id, isManager: true }
+    //   where: { userId: authUserId, shopId: id, isManager: true }
     // });
     // if (!manager && !isAdmin) {
     //   return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -115,7 +119,7 @@ export async function POST(
     const existing = await prisma.employee.findUnique({
       where: {
         shopId_userId: {
-          shopId: params.id,
+          shopId: id,
           userId,
         },
       },
@@ -134,7 +138,7 @@ export async function POST(
     // Create employee
     const employee = await prisma.employee.create({
       data: {
-        shopId: params.id,
+        shopId: id,
         userId,
         name,
         email,

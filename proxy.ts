@@ -19,6 +19,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/vouchers/redeem',
   '/api/webhooks(.*)',
   '/api/shops(.*)', // Allow public access to shops API
+  '/api/voucher-bundles(.*)', // Allow public access to voucher bundles API
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
@@ -26,9 +27,10 @@ export default clerkMiddleware(async (auth, request) => {
   const origin = request.headers.get('origin');
   const isVoucherAPI = request.nextUrl.pathname.startsWith('/api/vouchers/');
   const isShopsAPI = request.nextUrl.pathname.startsWith('/api/shops');
+  const isVoucherBundlesAPI = request.nextUrl.pathname.startsWith('/api/voucher-bundles');
   
-  // Allow mission-cms to access voucher and shops APIs
-  if ((isVoucherAPI || isShopsAPI) && origin) {
+  // Allow mission-cms to access voucher, shops, and voucher-bundles APIs
+  if ((isVoucherAPI || isShopsAPI || isVoucherBundlesAPI) && origin) {
     const allowedOrigins = [
       'https://bonus-galaxy-cms.vercel.app',
       'http://localhost:3001', // For local development
@@ -37,7 +39,7 @@ export default clerkMiddleware(async (auth, request) => {
     if (allowedOrigins.includes(origin)) {
       const response = NextResponse.next();
       response.headers.set('Access-Control-Allow-Origin', origin);
-      response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
       response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
       response.headers.set('Access-Control-Allow-Credentials', 'true');
       
