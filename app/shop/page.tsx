@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { Navigation } from '@/components/navigation';
 import { VoucherCard } from '@/components/shop/voucher-card';
+import { VoucherCarousel } from '@/components/shop/voucher-carousel';
 import { Sparkles, ShoppingBag, CreditCard, Gift, Zap, Shield, Check } from 'lucide-react';
 import prisma from '@/lib/prisma';
 
@@ -66,10 +67,12 @@ export default async function ShopPage() {
       bundles.splice(1, 0, popularBundle); // Insert at middle position
     }
     
-    // Type cast paymentMethod to the expected union type
+    // Type cast to the expected format for VoucherCard
     return bundles.map(bundle => ({
       ...bundle,
-      paymentMethod: bundle.paymentMethod as 'cash' | 'points' | 'both'
+      description: bundle.description || '',
+      paymentMethod: bundle.paymentMethod as 'cash' | 'points' | 'both',
+      pointsCost: bundle.pointsCost || undefined,
     }));
   })();
 
@@ -109,11 +112,17 @@ export default async function ShopPage() {
           </div>
 
           {/* Voucher Cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {voucherBundles.map((bundle) => (
-              <VoucherCard key={bundle.id} bundle={bundle} userPoints={userPoints} />
-            ))}
-          </div>
+          {voucherBundles.length > 3 ? (
+            <VoucherCarousel bundles={voucherBundles} userPoints={userPoints} />
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch pt-4">
+              {voucherBundles.map((bundle) => (
+                <div key={bundle.id} className="flex">
+                  <VoucherCard bundle={bundle} userPoints={userPoints} />
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* How it works */}
           <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
