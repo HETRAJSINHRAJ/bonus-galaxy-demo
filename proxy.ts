@@ -18,6 +18,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/vouchers/validate',
   '/api/vouchers/redeem',
   '/api/webhooks(.*)',
+  '/api/shops(.*)', // Allow public access to shops API
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
