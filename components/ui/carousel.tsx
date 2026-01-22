@@ -206,9 +206,9 @@ const CarouselPrevious = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        "absolute h-12 w-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 disabled:opacity-30 transition-all",
+        "absolute hidden sm:flex h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 disabled:opacity-30 transition-all",
         orientation === "horizontal"
-          ? "-left-6 top-1/2 -translate-y-1/2"
+          ? "-left-4 sm:-left-6 top-1/2 -translate-y-1/2"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
@@ -216,7 +216,7 @@ const CarouselPrevious = React.forwardRef<
       onClick={scrollPrev}
       {...props}
     >
-      <ArrowLeft className="h-5 w-5 text-white" />
+      <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
       <span className="sr-only">Previous slide</span>
     </Button>
   )
@@ -235,9 +235,9 @@ const CarouselNext = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        "absolute h-12 w-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 disabled:opacity-30 transition-all",
+        "absolute hidden sm:flex h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 disabled:opacity-30 transition-all",
         orientation === "horizontal"
-          ? "-right-6 top-1/2 -translate-y-1/2"
+          ? "-right-4 sm:-right-6 top-1/2 -translate-y-1/2"
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
@@ -245,7 +245,7 @@ const CarouselNext = React.forwardRef<
       onClick={scrollNext}
       {...props}
     >
-      <ArrowRight className="h-5 w-5 text-white" />
+      <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
       <span className="sr-only">Next slide</span>
     </Button>
   )
@@ -275,7 +275,7 @@ const CarouselDots = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "flex justify-center gap-2 mt-6",
+        "flex justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6",
         className
       )}
       {...props}
@@ -284,10 +284,10 @@ const CarouselDots = React.forwardRef<
         <button
           key={index}
           className={cn(
-            "h-2 rounded-full transition-all",
+            "h-1.5 sm:h-2 rounded-full transition-all",
             index === selectedIndex
-              ? "w-8 bg-indigo-400"
-              : "w-2 bg-white/30 hover:bg-white/50"
+              ? "w-6 sm:w-8 bg-indigo-400"
+              : "w-1.5 sm:w-2 bg-white/30 hover:bg-white/50"
           )}
           onClick={() => api?.scrollTo(index)}
           aria-label={`Go to slide ${index + 1}`}

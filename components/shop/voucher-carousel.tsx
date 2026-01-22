@@ -35,10 +35,10 @@ interface VoucherCarouselProps {
 
 export function VoucherCarousel({ bundles, userPoints }: VoucherCarouselProps) {
   return (
-    <div className="relative px-12">
+    <div className="relative px-2 sm:px-8 md:px-12">
       <Carousel
         opts={{
-          align: "start",
+          align: "center",
           loop: true,
         }}
         plugins={[
@@ -49,9 +49,9 @@ export function VoucherCarousel({ bundles, userPoints }: VoucherCarouselProps) {
         ]}
         className="w-full"
       >
-        <CarouselContent className="-ml-4 items-stretch">
+        <CarouselContent className="-ml-2 sm:-ml-4 items-stretch">
           {bundles.map((bundle) => (
-            <CarouselItem key={bundle.id} className="md:basis-1/2 lg:basis-1/3 pl-4 pt-4 pb-2">
+            <CarouselItem key={bundle.id} className="basis-full sm:basis-1/2 md:basis-1/2 lg:basis-1/3 pl-2 sm:pl-4 pt-4 pb-2">
               <div className="h-full">
                 <VoucherCard bundle={bundle} userPoints={userPoints} />
               </div>
