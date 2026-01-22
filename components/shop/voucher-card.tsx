@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Loader2, Sparkles, Coins, CreditCard } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
+import { VoucherImageCarousel } from './voucher-image-carousel';
 
 interface Bundle {
   id: string;
@@ -18,6 +19,7 @@ interface Bundle {
   pointsCost?: number;
   voucherCount?: number;
   paymentMethod?: 'cash' | 'points' | 'both'; // Determines which payment option is available
+  images?: string[]; // Array of image URLs for carousel
 }
 
 interface VoucherCardProps {
@@ -182,6 +184,11 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
       )}
       
       <div className="flex-1 space-y-4">
+        {/* Image Carousel */}
+        {bundle.images && bundle.images.length > 0 && (
+          <VoucherImageCarousel images={bundle.images} alt={bundle.name} />
+        )}
+
         {/* Header */}
         <div>
           <h3 className="text-xl font-bold text-white mb-1">{bundle.name}</h3>
