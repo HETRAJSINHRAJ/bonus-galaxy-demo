@@ -22,12 +22,13 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
-  // Add CORS headers for voucher API endpoints when called from mission-cms
+  // Add CORS headers for API endpoints when called from mission-cms
   const origin = request.headers.get('origin');
   const isVoucherAPI = request.nextUrl.pathname.startsWith('/api/vouchers/');
+  const isShopsAPI = request.nextUrl.pathname.startsWith('/api/shops');
   
-  // Allow mission-cms to access voucher APIs
-  if (isVoucherAPI && origin) {
+  // Allow mission-cms to access voucher and shops APIs
+  if ((isVoucherAPI || isShopsAPI) && origin) {
     const allowedOrigins = [
       'https://bonus-galaxy-cms.vercel.app',
       'http://localhost:3001', // For local development
