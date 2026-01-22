@@ -178,7 +178,7 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
       >
       {/* Image Carousel - At the very top */}
       {bundle.images && bundle.images.length > 0 && (
-        <div className="w-full">
+        <div className="relative w-full h-48">
           <VoucherImageCarousel images={bundle.images} alt={bundle.name} />
         </div>
       )}
@@ -190,60 +190,60 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
         </Badge>
       )}
       
-      <div className="flex-1 space-y-4 p-4">
+      <div className="flex-1 flex flex-col space-y-4 p-6">
         {/* Header */}
-        <div>
-          <h3 className="text-xl font-bold text-white mb-1">{bundle.name}</h3>
-          <p className="text-xs text-white/60">{bundle.description}</p>
+        <div className="space-y-2">
+          <h3 className="text-2xl font-bold text-white leading-tight">{bundle.name}</h3>
+          <p className="text-sm text-white/70 leading-relaxed">{bundle.description}</p>
         </div>
 
         {/* Pricing */}
-        <div className="space-y-1.5">
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-white">€{bundle.price}</span>
-            <span className="text-base text-white/40 line-through">€{bundle.value}</span>
+        <div className="space-y-2 py-2">
+          <div className="flex items-baseline gap-3">
+            <span className="text-4xl font-bold text-white">€{bundle.price}</span>
+            <span className="text-lg text-white/40 line-through">€{bundle.value}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30 text-xs">
+            <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30 text-sm px-3 py-1">
               Spare €{savings}
             </Badge>
-            <span className="text-xs text-white/50">
+            <span className="text-sm text-white/60 font-medium">
               ({savingsPercent}% Rabatt)
             </span>
           </div>
         </div>
 
         {/* Features */}
-        <ul className="space-y-2">
+        <ul className="space-y-2.5 flex-1">
           {bundle.features.map((feature, index) => (
-            <li key={index} className="flex items-start gap-2 text-xs">
-              <div className="w-4 h-4 bg-indigo-500/20 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                <Check className="h-2.5 w-2.5 text-indigo-400" />
+            <li key={index} className="flex items-start gap-2.5 text-sm">
+              <div className="w-5 h-5 bg-indigo-500/20 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                <Check className="h-3 w-3 text-indigo-400" />
               </div>
-              <span className="text-white/80">{feature}</span>
+              <span className="text-white/90 leading-relaxed">{feature}</span>
             </li>
           ))}
         </ul>
       </div>
 
       {/* Payment Options - Only show the allowed payment method */}
-      <div className="space-y-2 mt-4">
+      <div className="space-y-3 p-6 pt-0">
         {/* Show Stripe Payment ONLY if paymentMethod is 'cash' or 'both' or not specified */}
         {(!bundle.paymentMethod || bundle.paymentMethod === 'cash' || bundle.paymentMethod === 'both') && (
           <Button
-            className={`w-full ${bundle.isPopular ? 'btn-gradient' : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'}`}
-            size="default"
+            className={`w-full ${bundle.isPopular ? 'btn-gradient' : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'} h-12 text-base font-semibold`}
+            size="lg"
             onClick={handleStripePurchase}
             disabled={loading || loadingPoints}
           >
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 Wird geladen...
               </>
             ) : (
               <>
-                <CreditCard className="mr-2 h-4 w-4" />
+                <CreditCard className="mr-2 h-5 w-5" />
                 Mit Karte kaufen - €{bundle.price}
               </>
             )}
@@ -254,26 +254,26 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
         {(bundle.paymentMethod === 'points' || bundle.paymentMethod === 'both') && bundle.pointsCost && (
           <>
             <Button
-              className="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30"
-              size="default"
+              className="w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 h-12 text-base font-semibold"
+              size="lg"
               onClick={handlePointsPurchase}
               disabled={loading || loadingPoints || userPoints < bundle.pointsCost}
             >
               {loadingPoints ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   Wird geladen...
                 </>
               ) : (
                 <>
-                  <Coins className="mr-2 h-4 w-4" />
+                  <Coins className="mr-2 h-5 w-5" />
                   Mit Punkten kaufen - {bundle.pointsCost.toLocaleString()} Punkte
                 </>
               )}
             </Button>
             
             {userPoints < bundle.pointsCost && (
-              <p className="text-xs text-center text-red-400">
+              <p className="text-sm text-center text-red-400 font-medium">
                 Nicht genügend Punkte (Du hast: {userPoints.toLocaleString()})
               </p>
             )}
