@@ -170,25 +170,27 @@ export function VoucherCard({ bundle, userPoints = 0 }: VoucherCardProps) {
       <LoadingOverlay />
 
       <div 
-        className={`relative p-4 pt-8 flex flex-col h-full rounded-xl bg-white/5 backdrop-blur-sm border transition-all duration-300 ease-in-out hover:scale-[1.02] ${
+        className={`relative flex flex-col h-full rounded-xl bg-white/5 backdrop-blur-sm border transition-all duration-300 ease-in-out hover:scale-[1.02] overflow-hidden ${
           bundle.isPopular 
             ? 'border-indigo-500/50 shadow-lg shadow-indigo-500/20' 
             : 'border-white/10 hover:border-white/20'
         }`}
       >
+      {/* Image Carousel - At the very top */}
+      {bundle.images && bundle.images.length > 0 && (
+        <div className="w-full">
+          <VoucherImageCarousel images={bundle.images} alt={bundle.name} />
+        </div>
+      )}
+
       {bundle.isPopular && (
-        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 btn-gradient text-white border-0 px-3 py-1 text-xs font-semibold shadow-lg z-10 whitespace-nowrap">
+        <Badge className="absolute top-2 right-2 btn-gradient text-white border-0 px-3 py-1 text-xs font-semibold shadow-lg z-10 whitespace-nowrap">
           <Sparkles className="h-3 w-3 mr-1" />
           Beliebteste Wahl
         </Badge>
       )}
       
-      <div className="flex-1 space-y-4">
-        {/* Image Carousel */}
-        {bundle.images && bundle.images.length > 0 && (
-          <VoucherImageCarousel images={bundle.images} alt={bundle.name} />
-        )}
-
+      <div className="flex-1 space-y-4 p-4">
         {/* Header */}
         <div>
           <h3 className="text-xl font-bold text-white mb-1">{bundle.name}</h3>

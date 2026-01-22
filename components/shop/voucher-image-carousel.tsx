@@ -29,7 +29,7 @@ export function VoucherImageCarousel({ images, alt }: VoucherImageCarouselProps)
   }
 
   return (
-    <div className="relative w-full h-48 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-lg overflow-hidden group">
+    <div className="relative w-full h-48 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 overflow-hidden group">
       {/* Image */}
       <img
         src={images[currentIndex]}
