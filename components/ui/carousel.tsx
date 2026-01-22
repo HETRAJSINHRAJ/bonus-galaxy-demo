@@ -275,7 +275,7 @@ const CarouselDots = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "flex justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6",
+        "flex justify-center gap-2 mt-6",
         className
       )}
       {...props}
@@ -284,10 +284,10 @@ const CarouselDots = React.forwardRef<
         <button
           key={index}
           className={cn(
-            "h-1.5 sm:h-2 rounded-full transition-all",
+            "h-2 rounded-full transition-all",
             index === selectedIndex
-              ? "w-6 sm:w-8 bg-indigo-400"
-              : "w-1.5 sm:w-2 bg-white/30 hover:bg-white/50"
+              ? "w-8 bg-indigo-400"
+              : "w-2 bg-white/30 hover:bg-white/50"
           )}
           onClick={() => api?.scrollTo(index)}
           aria-label={`Go to slide ${index + 1}`}
